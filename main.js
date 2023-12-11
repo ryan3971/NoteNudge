@@ -5,16 +5,12 @@ function createWindow () {
   const win = new BrowserWindow({
     width: 100,
     height: 100,
-    titleBarStyle: 'hidden',
-    titleBarOverlay: false,
-    alwaysOnTop: true,
+  //  titleBarStyle: 'hidden',
+  //  titleBarOverlay: false,
+  //  alwaysOnTop: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }
-    // webPreferences: {
-    //   nodeIntegration: true,
-    //   enableRemoteModule: true,
-    // },
   })
 
   win.loadFile('index.html')
@@ -35,7 +31,7 @@ app.on('window-all-closed', () => {
 })
 
 // Listen for button-clicked events from renderer process
-ipcMain.on('button-click', (button_click) => {
+ipcMain.on('button-click', (event, button_click) => {
   console.log(`Button ${button_click} clicked in the main process!`);
   // Handle Button 1 event here
 });
