@@ -35,7 +35,7 @@ app.on('window-all-closed', () => {
 })
 
 // Listen for button-clicked events from renderer process
-ipcMain.on('button-click', (button_click) => {
+ipcMain.on('button-click', (event, button_click) => {
   console.log(`Button ${button_click} clicked in the main process!`);
   // Handle Button 1 event here
 });
