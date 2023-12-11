@@ -2,13 +2,16 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <title>Hello World!</title>
+    <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    Title: <input id="title"/>
-    <button id="btn" type="button">Set</button>
+    <div id="buttonContainer">
+      <button id="button1">Button 1</button>
+      <button id="button2">Button 2</button>
+      <button id="button3">Button 3</button>
+      <button id="button4">Button 4</button>
+    </div>
     <script src="./renderer.js"></script>
   </body>
 </html>

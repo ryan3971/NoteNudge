@@ -1,5 +1,5 @@
 const { contextBridge, ipcRenderer } = require('electron/renderer')
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  setTitle: (title) => ipcRenderer.send('save-entry', title)
+  setButton: (button_click) => ipcRenderer.send('button-click', button_click)
 })

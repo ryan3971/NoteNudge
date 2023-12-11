@@ -1,24 +1,20 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('node:path')
-const { spawn } = require('child_process');
 
 function createWindow () {
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 100,
+    height: 100,
     titleBarStyle: 'hidden',
-    titleBarOverlay: true,
+    titleBarOverlay: false,
     alwaysOnTop: true,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js')
+    }
     // webPreferences: {
     //   nodeIntegration: true,
     //   enableRemoteModule: true,
     // },
-  })
-
-  ipcMain.on('save-entry', (event, title) => {
-    const webContents = event.sender
-    const win = BrowserWindow.fromWebContents(webContents)
-    win.setTitle(title)
   })
 
   win.loadFile('index.html')
@@ -33,7 +29,13 @@ app.on('activate', () => {
 })
 
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-      app.quit()
-    }
-  })
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
+})
+
+// Listen for button-clicked events from renderer process
+ipcMain.on('button-click', (button_click) => {
+  console.log(`Button ${button_click} clicked in the main process!`);
+  // Handle Button 1 event here
+});
