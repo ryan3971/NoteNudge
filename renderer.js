@@ -1,12 +1,9 @@
-// renderer.js
-const buttons = document.querySelectorAll('button');
+// // renderer.js
+const button = document.getElementById('btn_close');
 
-buttons.forEach((button, index) => {
-  button.addEventListener('click', () => {
-    // Handle button click event based on index
-    console.log(`Button ${index + 1} clicked!`);
+button.addEventListener('click', () => {
+  console.log(`Button clicked!`);
 
-    // Send a message to the main process if needed
-    window.electronAPI.setButton(index + 1)
-  });
+  // Handle closing the application here
+  window.electronAPI.handleCloseApplication('close-application')
 });

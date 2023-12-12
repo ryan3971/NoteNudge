@@ -1,37 +1,54 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain } = require('electron');
 const path = require('node:path')
 
+let mainWindow 
+
 function createWindow () {
-  const win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 100,
     height: 100,
-  //  titleBarStyle: 'hidden',
+    titleBarStyle: 'visible',
   //  titleBarOverlay: false,
   //  alwaysOnTop: true,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
-    }
+       preload: path.join(__dirname, 'preload.js')
+     }
   })
 
-  win.loadFile('index.html')
+  mainWindow.loadFile('index.html')
+}
+// Function to set the timer to reopen the application
+function setReopenTimer() {
+  
+  // Set the timer for 30 minutes (30 minutes * 60 seconds * 1000 milliseconds)
+  const reopenDelay = 3000//30 * 60 * 1000;
+
+  // Create the timer
+  reopenTimer = setTimeout(() => {
+    createWindow();
+  }, reopenDelay);
 }
 
-app.whenReady().then(createWindow)
+// Called when the application is ready to start. Anything nested here will be able to run when the application is ready to start.
+app.on('ready', () => {
+  console.log(`ready`);
+  createWindow();
 
-app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow()
-  }
-})
+  // called when the window is closing
+  app.on('before-quit', (event) => {
+    console.log(`before-quit`);
+    // Override the default behavior of closing the window
+    event.preventDefault()
+    setReopenTimer()
+  });
+});
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})
+// Listen for button-clicked events from renderer process - close-application
+ipcMain.on('close-application', (event) => {
+  console.log(`close-application`);
+  console.log(`Button clicked in the main process!`);
 
-// Listen for button-clicked events from renderer process
-ipcMain.on('button-click', (event, button_click) => {
-  console.log(`Button ${button_click} clicked in the main process!`);
-  // Handle Button 1 event here
+  // Handle closing the application here
+  mainWindow.close();
+  setReopenTimer();
 });
