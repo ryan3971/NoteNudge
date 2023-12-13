@@ -26,14 +26,26 @@ const snooze_delay = 1000
 // Function to create the main window
 function createMainWindow () {
   mainWindow = new BrowserWindow({
-    width: 600,
-    height: 400,
+    width: 400,
+    height: 200,
     titleBarStyle: 'hidden',
     titleBarOverlay: false,
+    show: false,
+    skipTaskbar: true,
     webPreferences: {
        preload: path.join(__dirname, 'preload.js'),
      }
   })
+
+  const primaryDisplay = screen.getPrimaryDisplay()
+  const { width: screen_width, height: screen_height } = primaryDisplay.workAreaSize
+  const [window_width, window_height ] = mainWindow.getSize()
+
+  // Calculate the position for the bottom-right corner
+  const x = screen_width - window_width - offset_x;   // Adjust this value based on your window width
+  const y = screen_height - window_height - offset_y; // Adjust this value based on your window height
+  // Set the window position
+  mainWindow.setPosition(x, y);
 
   mainWindow.loadFile('index.html')
 }
@@ -46,6 +58,8 @@ function createToolbarWindow () {
     titleBarStyle: 'hidden',
     titleBarOverlay: false,
     alwaysOnTop: true,
+    show: false,
+    skipTaskbar: true,
     webPreferences: {
        preload: path.join(__dirname, 'toolbar/toolbar_preload.js'),
        nodeIntegration: true
@@ -66,6 +80,26 @@ function createToolbarWindow () {
   toolbarWindow.setPosition(x, y);
 
   toolbarWindow.loadFile('toolbar/toolbar-window.html')
+
+  toolbarWindow.once('ready-to-show', () => {
+    toolbarWindow.show()
+  })
+}
+
+function createSettingsWindow() {
+  secondWindow = new BrowserWindow({
+    width: 400,
+    height: 300,
+    webPreferences: {
+      nodeIntegration: true
+    }
+  });
+
+  secondWindow.loadFile('settings-window.html');
+
+  secondWindow.on('closed', function () {
+    secondWindow = null;
+  });
 }
 
 // Function to create the traybar window
@@ -79,8 +113,12 @@ function createTray() {
       click: () => {
         if (!mainWindow) {
           createMainWindow();
+          //animateMainWindow();
+          mainWindow.once('ready-to-show', () => {
+            mainWindow.show()
+          })
         }
-        mainWindow.show();
+        //mainWindow.show();
       },
     },
     {
@@ -115,13 +153,31 @@ function setReopenTimer(reopenDelay) {
   }, reopenDelay);
 }
 
+// function animateMainWindow() {
+//   let width = 0;
+//   let height = 0;
+
+//   mainWindow.show();
+
+//   const interval = setInterval(() => {
+//     width += 10;
+//     height += 5;
+
+//     mainWindow.setSize(width, height);
+
+//     if (width >= 400) {
+//       clearInterval(interval);
+//     }
+//   }, 10);
+// }
+
 // Called when the application is ready to start. Anything nested here will be able to run when the application is ready to start.
 app.whenReady().then(() => {
   console.log(`ready`);
   createToolbarWindow();
-//  createMainWindow();
+  createMainWindow();
   createTray()
- 
+
   // called when the window is closing
   app.on('before-quit', (event) => {
     console.log(`before-quit`);
@@ -140,7 +196,9 @@ ipcMain.on('button-click', (event, button_click) => {
     // Close the toolbar window and open the main window
     toolbarWindow.close();
     toolbarWindow = null;
-    createMainWindow();
+    //createMainWindow();
+    //animateMainWindow();
+    mainWindow.show();
 
   // Snooze the reminder
   }else if (button_click === 2) {
