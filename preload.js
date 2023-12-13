@@ -1,5 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron/renderer')
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  setTitle: (title) => ipcRenderer.send('save-entry', title)
-})
+  handleCloseApplication: () => ipcRenderer.send('close-application'),
+  handleSubmitEntry: (entry) => ipcRenderer.send('submit-entry', entry),
+  handleOpenSettings: () => ipcRenderer.send('open-settings')
+});
