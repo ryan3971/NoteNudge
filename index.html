@@ -1,16 +1,15 @@
+<!-- index.html -->
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <title>Hello World!</title>
-  </head>
-  <body>
-    <textarea id="entry_input" ></textarea>
-    <button id="submit_entry_button">Submit Entry</button>
-    <button id="open_settings">Open Settings</button>
-    <button id="btn_close" type="button">Close Me</button>
-    <script src="./renderer.js"></script>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>Electron Screen Capture Example</title>
+</head>
+<body>
+  <div id="thumbnail-container"></div>
+  <button id="startSelectionButton">Start Selection</button>
+  <script src="./renderer.js"></script>
+</body>
 </html>

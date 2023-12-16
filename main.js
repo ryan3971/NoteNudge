@@ -1,257 +1,139 @@
 const { app, 
         BrowserWindow, 
-        Tray, 
-        Menu, 
         ipcMain, 
         screen,
       } = require('electron/main');
       
 const path = require('node:path')
 
-const {spawn} = require('child_process');
+const screenshot = require('screenshot-desktop');
+const sharp = require('sharp');
 
+const fs = require('fs');
 
 let mainWindow 
-let toolbarWindow
-let tray = null
-
-// Additional offset from the bottom-right corner of the screen for the toolbar window
-const offset_x = 100
-const offset_y = 100
-
-// Set the timer for 30 minutes (30 minutes * 60 seconds * 1000 milliseconds)
-const reminder_delay = 3000//30 * 60 * 1000;
-const snooze_delay = 1000
+let selectionWindow
 
 // Function to create the main window
 function createMainWindow () {
   mainWindow = new BrowserWindow({
     width: 400,
     height: 200,
-    titleBarStyle: 'hidden',
-    titleBarOverlay: false,
-    show: false,
-    skipTaskbar: true,
     webPreferences: {
        preload: path.join(__dirname, 'preload.js'),
      }
   })
 
-  const primaryDisplay = screen.getPrimaryDisplay()
-  const { width: screen_width, height: screen_height } = primaryDisplay.workAreaSize
-  const [window_width, window_height ] = mainWindow.getSize()
-
-  // Calculate the position for the bottom-right corner
-  const x = screen_width - window_width - offset_x;   // Adjust this value based on your window width
-  const y = screen_height - window_height - offset_y; // Adjust this value based on your window height
-  // Set the window position
-  mainWindow.setPosition(x, y);
-
   mainWindow.loadFile('index.html')
+
+  mainWindow.on('closed', function () {
+    mainWindow = null;
+  });
 }
 
-// Function to create the toolbar window
-function createToolbarWindow () {
-  toolbarWindow = new BrowserWindow({
-    width: 100,
-    height: 100,
-    titleBarStyle: 'hidden',
-    titleBarOverlay: false,
+function createSelectionWindow() {
+  selectionWindow = new BrowserWindow({
+    width: screen.getPrimaryDisplay().bounds.width,
+    height: screen.getPrimaryDisplay().bounds.height,
+    x: 0,
+    y: 0,
+    frame: false,
+    transparent: true,
     alwaysOnTop: true,
-    show: false,
-    skipTaskbar: true,
     webPreferences: {
-       preload: path.join(__dirname, 'toolbar/toolbar_preload.js'),
-       nodeIntegration: true
-     }
-  });
-
-  // Note: electron cannot be called until the app is ready
-  // Position the window in the bottom-right corner of the screen
-  const primaryDisplay = screen.getPrimaryDisplay()
-  const { width: screen_width, height: screen_height } = primaryDisplay.workAreaSize
-  const [toolbar_width, toolbar_height ] = toolbarWindow.getSize()
-
-  // Calculate the position for the bottom-right corner
-  const x = screen_width - toolbar_width - offset_x;   // Adjust this value based on your window width
-  const y = screen_height - toolbar_height - offset_y; // Adjust this value based on your window height
-  console.log(`x: ${x}, y: ${y}`);
-  // Set the window position
-  toolbarWindow.setPosition(x, y);
-
-  toolbarWindow.loadFile('toolbar/toolbar-window.html')
-
-  toolbarWindow.once('ready-to-show', () => {
-    toolbarWindow.show()
-  })
-}
-
-function createSettingsWindow() {
-  secondWindow = new BrowserWindow({
-    width: 400,
-    height: 300,
-    webPreferences: {
-      nodeIntegration: true
-    }
-  });
-
-  secondWindow.loadFile('settings-window.html');
-
-  secondWindow.on('closed', function () {
-    secondWindow = null;
-  });
-}
-
-// Function to create the traybar window
-function createTray() {
-  const trayIcon = path.join(__dirname, 'public/images/icon.png');
-  tray = new Tray(trayIcon);
-
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: 'Open',
-      click: () => {
-        if (!mainWindow) {
-          createMainWindow();
-          //animateMainWindow();
-          mainWindow.once('ready-to-show', () => {
-            mainWindow.show()
-          })
-        }
-        //mainWindow.show();
-      },
+      nodeIntegration: true,
+      preload: path.join(__dirname, 'selectionPreload.js'),
     },
-    {
-      label: 'Quit',
-      click: () => {
-        app.isQuitting = true;
-        app.exit(); // All windows will be closed immediately without asking the user, and the before-quit and will-quit events will not be emitted
-      },
-    },
-  ]);
+  });
 
-  tray.setToolTip('My Electron App');
-  tray.setContextMenu(contextMenu);
+  selectionWindow.setIgnoreMouseEvents(false);
 
-  // Show the window when the tray icon is clicked
-  // tray.on('click', () => {
-  //   if (!mainWindow) {
-  //     createMainWindow();
-  //   }
-  //   mainWindow.show();
-  // });
+  selectionWindow.on('closed', function () {
+    selectionWindow = null;
+  });
+
+  selectionWindow.webContents.on('did-finish-load', () => {
+    selectionWindow.show();
+  });
+
+  selectionWindow.on('show', () => {
+    setTimeout(() => {
+      selectionWindow.focus();
+    }, 200);
+  });
+
+  selectionWindow.loadFile('selectionWindow.html');
 }
-
-// Function to set the timer to reopen the application
-function setReopenTimer(reopenDelay) {
-  
-  // Create the timer
-  reopenTimer = setTimeout(() => {
-    if (!toolbarWindow) {
-      createToolbarWindow();
-    }
-  }, reopenDelay);
-}
-
-// function animateMainWindow() {
-//   let width = 0;
-//   let height = 0;
-
-//   mainWindow.show();
-
-//   const interval = setInterval(() => {
-//     width += 10;
-//     height += 5;
-
-//     mainWindow.setSize(width, height);
-
-//     if (width >= 400) {
-//       clearInterval(interval);
-//     }
-//   }, 10);
-// }
 
 // Called when the application is ready to start. Anything nested here will be able to run when the application is ready to start.
 app.whenReady().then(() => {
   console.log(`ready`);
-  createToolbarWindow();
   createMainWindow();
-  createTray()
-
-  // called when the window is closing
-  app.on('before-quit', (event) => {
-    console.log(`before-quit`);
-    event.preventDefault()
-  });
+});
+app.on('window-all-closed', function () {
+  if (process.platform !== 'darwin') app.quit();
 });
 
-// Listen for button-clicked events from renderer process
-ipcMain.on('button-click', (event, button_click) => {
-  console.log(`Button ${button_click} clicked in the main process!`);
-  
-  // Handle Button 1 event here
-  if (button_click === 1) {
-    console.log(`button-1`);
-    
-    // Close the toolbar window and open the main window
-    toolbarWindow.close();
-    toolbarWindow = null;
-    //createMainWindow();
-    //animateMainWindow();
-    mainWindow.show();
+app.on('activate', function () {
+  if (mainWindow === null) createMainWindow();
+});
 
-  // Snooze the reminder
-  }else if (button_click === 2) {
-    console.log(`button-2`);
-    toolbarWindow.close();
-    toolbarWindow = null;
-    setReopenTimer(reminder_delay)
+ipcMain.on('start-selection',  async (event) => {
+  console.log(`start-selection`);
+  mainWindow.hide();
+  createSelectionWindow();
+});
 
-  // Handle Button 1 event here
-  }else if (button_click === 3) {
-    console.log(`button-3`);
-    toolbarWindow.close();
-    toolbarWindow = null;
-    setReopenTimer(snooze_delay)
-  
-  // Handle Button 1 event here
-  }else if (button_click === 4) {
-    console.log(`button-4`);
-    toolbarWindow.close();
-    toolbarWindow = null;
-    app.isQuitting = true;
-    app.exit();
+ipcMain.on('capture-selection',  async (event, left, top, width, height) => {
+  console.log(`capture-selection`);
+  selectionWindow.hide();
+ console.log(left, top, width, height);
+ try {
+    // Capture the screenshot
+    screenshot().then(async (img) => {
+
+      // get the dimensions of the screen and the image, then calculate the crop dimensions
+      // Not sure how could of a solution this is - double check (and take rect border into account)
+      const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().bounds;
+      const { width: imgWidth, height: imgHeight } = await sharp(img).metadata();
+
+      scaledLeft = (left / screenWidth) * imgWidth;
+      scaledTop = (top / screenHeight) * imgHeight;
+      scaledWidth = (width / screenWidth) * imgWidth;
+      scaledHeight = (height / screenHeight) * imgHeight;
+
+      // Crop the image
+      const metadata = await sharp(img).metadata();
+      console.log(metadata);
+      const croppedImgBuffer = await sharp(img)
+        .extract({ left: scaledLeft, top: scaledTop, width: scaledWidth, height: scaledHeight })
+        .toBuffer();
+
+      // Save the screenshot to a file
+      fs.writeFileSync(".\\image.png", croppedImgBuffer);
+
+      console.log(`Screenshot saved`);
+      createThumbnail('image.png');
+
+    });
+  } catch(err) {
+    console.error('Error capturing screenshot:', err);
   }
 });
 
-// Listen for button-clicked events from renderer process - close-application
-ipcMain.on('close-application', (event) => {
-  console.log(`close-application`);
-  console.log(`Button clicked in the main process!`);
+function createThumbnail(imagePath) {
+  sharp(imagePath)
+    .resize(100, 75) // Adjust the dimensions as needed
+    .toBuffer()
+    .then((thumbnailBuffer) => {
+      const thumbnailDataURL = `data:image/png;base64,${thumbnailBuffer.toString('base64')}`;
+      displayThumbnail(thumbnailDataURL);
+    })
+    .catch((err) => {
+      console.error('Error creating thumbnail:', err);
+    });
+}
 
-  // Handle closing the application here
-  mainWindow.close(); // Try to close the window. This has the same effect as a user manually clicking the close button of the window
-  mainWindow = null; // Set mainWindow to null so that the application doesn't try to reopen it
-  setReopenTimer(reminder_delay)
-});
-
-// Listen for button-clicked events from renderer process - close-application
-ipcMain.on('submit-entry', (event, entry) => {
-  console.log(`submit-entry`);
-
-  // Use spawn to run the Python script
-  const pythonProcess = spawn('python', ["word_doc.py", entry]);
-
-  pythonProcess.stdout.on('data', (data) => {
-    console.log(`Python script output: ${data}`);
-  });
-
-  pythonProcess.stderr.on('data', (data) => {
-    console.error(`Python script error: ${data}`);
-  });
-});
-
-ipcMain.on('open-settings', (event) => {
-  console.log(`open-settings`);
-  createSettingsWindow();
-});
+function displayThumbnail(dataURL) {
+  thumbnailContainer.innerHTML = `<img src="${dataURL}" alt="Thumbnail">`;
+}
