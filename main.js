@@ -240,7 +240,7 @@ ipcMain.on('submit-entry', (event, entry) => {
   console.log(`submit-entry`);
 
   // Use spawn to run the Python script
-  const pythonProcess = spawn('python', ["word_doc.py", entry]);
+  const pythonProcess = spawn('python', ["scripts/word_doc.py", entry]);
 
   pythonProcess.stdout.on('data', (data) => {
     console.log(`Python script output: ${data}`);
