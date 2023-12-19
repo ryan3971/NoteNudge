@@ -1,5 +1,5 @@
 const { contextBridge, ipcRenderer} = require('electron/renderer')
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  handleStartSelection: () => ipcRenderer.send('start-selection'),
+  handleStartSelection: (quill) => ipcRenderer.send('send-quill', quill),
 });
