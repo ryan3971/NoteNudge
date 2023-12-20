@@ -3,11 +3,11 @@ const { app, BrowserWindow, ipcMain, screen } = require("electron/main");
 const path = require("node:path");
 //const quillToWord = require("quill-to-word");
 //const quill = require('quill');
-const htmlToDocx = require('html-to-docx');
 const { spawn } = require('child_process');
 
 const fs = require("fs");
 let mainWindow;
+let DOCUMENT_PATH
 
 // Function to create the main window
 function createMainWindow() {
@@ -29,25 +29,21 @@ function createMainWindow() {
 app.whenReady().then(() => {
   console.log(`ready`);
   createMainWindow();
-
+  DOCUMENT_PATH = path.join(__dirname, "scripts", "Daily Log.docx")
+  console.log(`DOCUMENT_PATH: ${DOCUMENT_PATH}`);
 });
 
 ipcMain.on('send-quill', (event, content) => {
     console.log(`send-quill`);
-    const pythonProcess = spawn('python', ['test.py', JSON.stringify({ content: content })])
+    // arguments are the python script, the content, and the path to save the file
+    const pythonProcess = spawn('python', ['scripts/word_doc.py', JSON.stringify({ content: content }), DOCUMENT_PATH])
 
-    pythonProcess.stdout.on('data', (data) => {
-        console.log(`Python stdout: ${data}`);
+    pythonProcess.stdout.on("data", (data) => {
+      console.log(`Python script output: ${data}`);
     });
-
-    pythonProcess.stderr.on('data', (data) => {
-        console.error(`Python stderr: ${data}`);
-    });
-
-    pythonProcess.on('close', (code) => {
-        console.log(`Python process exited with code ${code}`);
-        // You can send a message back to the renderer process if needed
-        event.sender.send('save-docx-result', { success: code === 0 });
+  
+    pythonProcess.stderr.on("data", (data) => {
+      console.error(`Python script error: ${data}`);
     });
 
     // const quillDelta = quill.getContents();
