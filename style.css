@@ -1,3 +1,28 @@
 #editor-container {
-  height: 375px;
+  height: 60%;
+  width: 80%;
+}
+.ql-crop-image:after {
+  content: "Crop Image";
+}
+/* 
+body {
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  height: 100vh;
+  margin: 0;
+} */
+
+textarea {
+  width: 300px;
+  height: 200px;
+  overflow: auto;
+  resize: none;
+}
+
+button {
+  margin-top: 10px;
+  padding: 8px;
+  cursor: pointer;
 }

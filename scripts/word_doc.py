@@ -3,6 +3,9 @@ from docx import Document
 import sys
 import json
 from htmldocx import HtmlToDocx
+import os
+import io
+import base64
 
 def append_text_to_word_document(text, document_path):
     # Get the current date and format it as "Week of [date]"
@@ -15,14 +18,13 @@ def append_text_to_word_document(text, document_path):
     current_weekday = datetime.datetime.now().strftime("%A")
 
     # Check if the document is open, if so, prompt the user to close it
-
-
     # Check if the document exists, if not create it
     try:
         document = Document(document_path)
     except:
         document = Document()
-        document.save(document_path)
+    #    document.save(document_path)
+        document.save("test.docx")
 
     # Find or create the week heading
     week_heading_found = False
@@ -52,7 +54,6 @@ def append_text_to_word_document(text, document_path):
 
     # Create the HTML to DOCX parser
     new_parser = HtmlToDocx()
-
     # Add the text as a new paragraph
     document.add_paragraph(f"entry #{entry_number}")
     new_parser.add_html_to_document(text, document)
@@ -61,27 +62,22 @@ def append_text_to_word_document(text, document_path):
     document.save(document_path)
     print("Python script executed successfully")
 
-# Create the entry point to the script. 
-# argv[0] is the name of the script
-# argv[1] is the text to append to the document
-# argv[2] is the path to the document
 if __name__ == "__main__":
     print("Python script executing")
-    print(sys.argv[0])
-    print(sys.argv[1])
-    print(sys.argv[2])
-    document_path = sys.argv[2]
+    
+    # Read all input from stdin
+    input_data = sys.stdin.read()
+
+    # Split the input into lines
+    input_lines = input_data.splitlines()   
+    json_data = input_lines[0]
+    document_path = input_lines[1]
     
     try:
-        # Read input from the standard input
-        #input_data = json.loads(text)
-        entry_input_json = json.loads(sys.argv[1])
+        entry_input_json = json.loads(json_data)
         entry_content = entry_input_json.get('content', '')
-
+        
         append_text_to_word_document(entry_content, document_path)
-
-        # Save content to DOCX
-        # save_to_docx(content)
 
         # Optional: Return a success message
         print("Python script executed successfully")
