@@ -28,11 +28,11 @@ function createMainWindow() {
     width: 400,
     height: 200,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
+      preload: path.join(__dirname, "renderer/preload.js"),
     },
   });
 
-  mainWindow.loadFile("index.html");
+  mainWindow.loadFile(path.join(__dirname, "renderer/index.html"));
 
   mainWindow.on("closed", function () {
     mainWindow = null;
@@ -48,11 +48,11 @@ function createSettingsWindow() {
     parent: mainWindow,
     modal: true,      // Have it so nothing else can be selected until the settings window is closed
     webPreferences: {
-      preload: path.join(__dirname, "settings/settings_preload.js"),
+      preload: path.join(__dirname, "renderer/settings/settings_preload.js"),
     },
   });
 
-  settingsWindow.loadFile("settings/settings-window.html");
+  settingsWindow.loadFile(path.join(__dirname, "renderer/settings/settings-window.html"));
 
   settingsWindow.webContents.on("did-finish-load", () => {
     console.log(`did-finish-load`);
