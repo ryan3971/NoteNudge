@@ -84,7 +84,6 @@ function createToolbarWindow() {
     // Calculate the position for the bottom-right corner
     const x = screen_width - toolbar_width - offset_x; // Adjust this value based on your window width
     const y = screen_height - toolbar_height - offset_y; // Adjust this value based on your window height
-    console.log(`x: ${x}, y: ${y}`);
     // Set the window position
     toolbarWindow.setPosition(x, y);
 
@@ -109,12 +108,25 @@ function createTray() {
         {
             label: "Open",
             click: () => {
-                createMainWindow();
+                console.log(`Tray Open clicked!`);
+                // don't do anything if the main window is already open
+                if (mainWindow.isVisible()) { return; }
+
+                // close the toolbar if it is open
+                if (toolbarWindow) {
+                    toolbarWindow.close();
+                } else {
+                    // shutdown the reopen timer and open the main window
+                    clearTimeout(reopenTimer);                  // Clear the timer
+                }
+                mainWindow.show();
+
             },
         },
         {
             label: "Quit",
             click: () => {
+                console.log(`Tray Quit clicked!`);
                 //  app.isQuitting = true;
                 app.exit(); // All windows will be closed immediately without asking the user, and the before-quit and will-quit events will not be emitted
             },
