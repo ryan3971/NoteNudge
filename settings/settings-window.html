@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./settings_style.css">
+    <title>Reminder App</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Reminder Settings</h1>
+
+        <!-- Reminder Time Section -->
+        <div class="section">
+            <label for="reminderHour">Reminder Time:</label>
+            <input type="number" id="reminderHour" min="0" max="23" placeholder="Hour" required>
+            <input type="number" id="reminderMinute" min="0" max="59" placeholder="Minute" required>
+          </div>
+
+        <!-- Snooze Time Section -->
+        <div class="section">
+            <div class="section">
+                <label for="snoozeHour">Snooze Time:</label>
+                <input type="number" id="snoozeHour" min="0" max="23" placeholder="Hour" required>
+                <input type="number" id="snoozeMinute" min="0" max="59" placeholder="Minute" required>
+              </div>
+
+        <!-- Start and End Time Section -->
+        <div class="section">
+            <label for="startTime">Start Time:</label>
+            <input type="time" id="startTime" required>
+            <label for="endTime">End Time:</label>
+            <input type="time" id="endTime" required>
+            <!--  <button onclick="submitStartEndTime()">Submit</button> -->
+        </div>
+
+        <!-- Folder Selection Section -->
+        <div class="section">
+            <label for="folderPath">Select Folder:</label>
+            <input type="text" id="folderPath" readonly>
+            <button onclick="openFolderDialog()">Select Folder</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!--Close Settings Button-->
+        <div class="section">
+            <button id="apply-settings" onclick="applySettings()">Apply Settings</button>
+
+        <!--Close Settings Button-->
+        <div class="section">
+            <button id="close-settings" onclick="closeSettings()">Close Settings</button>
+        </div>
+
+        <script src="./settings_renderer.js"></script>
+    </body>
+</html>
