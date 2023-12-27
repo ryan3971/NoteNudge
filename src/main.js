@@ -1,4 +1,7 @@
+// chaneg from require to import
+
 const { app, BrowserWindow, ipcMain, screen } = require("electron/main");
+
 
 const path = require("node:path");
 const { spawn } = require("child_process");
@@ -8,6 +11,11 @@ const sharp = require("sharp");
 
 const DatauriParser = require("datauri/parser");
 
+
+// Additional offset from the bottom-right corner of the screen for the toolbar window
+const offset_x = 75;
+const offset_y = 50;
+
 let mainWindow;
 let selectionWindow;
 
@@ -16,16 +24,32 @@ let DOCUMENT_PATH;
 // Function to create the main window
 function createMainWindow() {
     mainWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
+        width: 900,
+        height: 400,
+        frame: false,
         webPreferences: {
             preload: path.join(__dirname, "renderer/preload.js"),
             nodeIntegration: true,
+            contextIsolation: true,
         },
     });
 
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const { width: screen_width, height: screen_height } = primaryDisplay.workAreaSize;
+    const [window_width, window_height] = mainWindow.getSize();
+
+    // Calculate the position for the bottom-right corner
+    const x = screen_width - window_width - offset_x; // Adjust this value based on your window width
+    const y = screen_height - window_height - offset_y; // Adjust this value based on your window height
+    // Set the window position
+    mainWindow.setPosition(x, y);
+
     mainWindow.loadFile(path.join(__dirname, "renderer/index.html"));
 
+    // Shows the window once everything within is loaded (stops it from showing individual elements one by one)
+    mainWindow.once("ready-to-show", () => {
+        mainWindow.show();
+    });
     mainWindow.on("closed", function () {
         mainWindow = null;
     });
@@ -47,7 +71,7 @@ function createSelectionWindow() {
         },
     });
 
-    selectionWindow.setIgnoreMouseEvents(false);    // Set to true to ignore mouse events when the window is clicked
+    selectionWindow.setIgnoreMouseEvents(false); // Set to true to ignore mouse events when the window is clicked
 
     selectionWindow.on("closed", function () {
         selectionWindow = null;
@@ -62,10 +86,10 @@ app.whenReady().then(() => {
     createMainWindow();
     createSelectionWindow();
 
-    DOCUMENT_PATH = path.join(__dirname, "assets/scripts", "Daily Log.docx");   // Replace with settings value
+    DOCUMENT_PATH = path.join(__dirname, "assets/scripts", "Daily Log.docx"); // Replace with settings value
 });
 
-ipcMain.on("save-entry", (event, content) => {
+ipcMain.on("save-entry", async (event, content) => {
     console.log(`save-entry`);
 
     const pythonProcess = spawn("python", [path.join(__dirname, "assets/scripts/", "word_doc.py")], {
@@ -93,7 +117,6 @@ ipcMain.on("save-entry", (event, content) => {
         console.log(`Python script exited with code ${code}`);
     });
 });
-
 
 ipcMain.on("start-selection", async (event) => {
     console.log(`start-selection`);

@@ -6,9 +6,11 @@ const selectionRect = document.getElementById('selectionRect');
 let startCoordinates = { x: 0, y: 0 };
 let endCoordinates = { x: 0, y: 0 };
 
+const MIN_SELECTION_WIDTH = 10;
+const MIN_SELECTION_HEIGHT = 10;
+
 document.addEventListener('mousedown', (event) => {
     console.log(`mousedown`);
-    selectionRect.style.display = 'block';      // Show the selection rectangle
     isMouseDown = true;
     startCoordinates.x = event.screenX;
     startCoordinates.y = event.screenY;
@@ -18,7 +20,9 @@ document.addEventListener('mousemove', (event) => {
     console.log(`mousemove`);
     if (!isMouseDown) return;
 
-    console.log(`mousemove on mouseDown`);
+    selectionRect.style.display = 'block';
+
+    console.log(selectionRect.style.display);
     endCoordinates.x = event.screenX
     endCoordinates.y = event.screenY
     updateSelectionRect();
@@ -34,7 +38,9 @@ document.addEventListener('mouseup', () => {
     const rect = selectionRect.getBoundingClientRect();
     const { x, y, width, height } = calculateCropDimensions();
 
-    console.log(rect.left, rect.top, rect.width, rect.height);
+    // if the selection rectangle is too small, do not send the coordinates
+    if (width < MIN_SELECTION_WIDTH || height < MIN_SELECTION_HEIGHT) return;
+
     window.electronAPI.handleCaptureSelection(x, y, width, height);
 });
 
