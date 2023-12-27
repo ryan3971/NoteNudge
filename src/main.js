@@ -50,8 +50,8 @@ function createMainWindow() {
     mainWindow.loadFile(path.join(__dirname, "renderer/index.html"));
 
     // Shows the window once everything within is loaded (stops it from showing individual elements one by one)
-    toolbarWindow.once("ready-to-show", () => {
-        toolbarWindow.show();
+    mainWindow.once("ready-to-show", () => {
+        mainWindow.show();
     });
 
     mainWindow.on("closed", () => {
