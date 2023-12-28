@@ -50,9 +50,9 @@ function createMainWindow() {
     mainWindow.loadFile(path.join(__dirname, "renderer/index.html"));
 
     // Shows the window once everything within is loaded (stops it from showing individual elements one by one)
-    toolbarWindow.once("ready-to-show", () => {
-        toolbarWindow.show();
-    });
+    // mainWindow.once("ready-to-show", () => {
+    //     mainWindow.show();
+    // });
 
     mainWindow.on("closed", () => {
         mainWindow = null;
@@ -62,13 +62,16 @@ function createMainWindow() {
 // Function to create the toolbar window
 function createToolbarWindow() {
     toolbarWindow = new BrowserWindow({
-        width: 100,
-        height: 100,
+        width: 250,
+        height: 250,
+        frame: false,
         titleBarStyle: "hidden",
         titleBarOverlay: false,
         alwaysOnTop: true,
         show: false,
+        opacity: 0,
         skipTaskbar: true,
+        transparent: true, // Enable transparency
         webPreferences: {
             preload: path.join(__dirname, "renderer/toolbar/toolbar_preload.js"),
             nodeIntegration: true,
@@ -82,8 +85,8 @@ function createToolbarWindow() {
     const [toolbar_width, toolbar_height] = toolbarWindow.getSize();
 
     // Calculate the position for the bottom-right corner
-    const x = screen_width - toolbar_width - offset_x; // Adjust this value based on your window width
-    const y = screen_height - toolbar_height - offset_y; // Adjust this value based on your window height
+    const x = screen_width - toolbar_width// - offset_x; // Adjust this value based on your window width
+    const y = screen_height - toolbar_height// - offset_y; // Adjust this value based on your window height
     // Set the window position
     toolbarWindow.setPosition(x, y);
 
@@ -92,6 +95,7 @@ function createToolbarWindow() {
     // Shows the window once everything within is loaded (stops it from showing individual elements one by one)
     toolbarWindow.once("ready-to-show", () => {
         toolbarWindow.show();
+        fadeInWindow(toolbarWindow);
     });
 
     toolbarWindow.on("closed", () => {
@@ -142,6 +146,18 @@ function setReopenTimer(reopenDelay) {
     reopenTimer = setTimeout(() => {
         createToolbarWindow();
     }, reopenDelay);
+}
+
+function fadeInWindow(window) {
+    let opacity = 0;
+    const interval = setInterval(() => {
+        if (opacity < 1) {
+            opacity += 0.05; // Adjust the increment to control the fade-in speed
+            window.setOpacity(opacity);
+        } else {
+            clearInterval(interval);
+        }
+    }, 50); // Adjust the interval to control the fade-in smoothness
 }
 
 // Called when the application is ready to start. Anything nested here will be able to run when the application is ready to start.
