@@ -1,18 +1,22 @@
 /* styles/style.css */
-  body {
-    padding: 50px;
-  }
+   body {
+      margin: 0px;
+      overflow: hidden;
+      padding: 25px;
+  } 
 
+  /* Over a period of 60 seconds, have the pulse run for 3 seconds and do nothing for 57 */
   @keyframes pulse {
     0% {
-      background-color: #3498db;
+      background-color: #6DEFFF;
     }
-    50% {
+    2.5% {
       background-color: #F7AD19;
       transform: scale(1.5); 
     }
-    100% {
-      background-color: #3498db;
+    5% {
+      background-color: #6DEFFF;
+      transform: scale(1);
     }
   }
 
@@ -21,17 +25,17 @@
     height: 100px;
     width: 100px;
     border-radius: 10px;
-    background-color: #3498db;
+    background-color: #6DEFFF;
     /* Grid Layout */
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
     /* Animation */
     animation: pulse;
-    animation-duration: 3s;
-    animation-iteration-count: 2;
+    animation-duration: 60s;                /* Run for 60 seconds; pulse for 3, wait for 57 */
+    animation-iteration-count: 2;           /* Run twice */
     animation-timing-function: linear;  
-    animation-delay: 1s;
+    animation-delay: 60s;                   /* Wait 60 seconds before starting */
     }
 
   button {

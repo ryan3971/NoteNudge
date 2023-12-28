@@ -62,8 +62,8 @@ function createMainWindow() {
 // Function to create the toolbar window
 function createToolbarWindow() {
     toolbarWindow = new BrowserWindow({
-        width: 250,
-        height: 250,
+        width: 150,
+        height: 150,
         frame: false,
         titleBarStyle: "hidden",
         titleBarOverlay: false,
@@ -71,7 +71,8 @@ function createToolbarWindow() {
         show: false,
         opacity: 0,
         skipTaskbar: true,
-        transparent: true, // Enable transparency
+//        transparent: true,
+        resizable: false,
         webPreferences: {
             preload: path.join(__dirname, "renderer/toolbar/toolbar_preload.js"),
             nodeIntegration: true,
@@ -85,8 +86,8 @@ function createToolbarWindow() {
     const [toolbar_width, toolbar_height] = toolbarWindow.getSize();
 
     // Calculate the position for the bottom-right corner
-    const x = screen_width - toolbar_width// - offset_x; // Adjust this value based on your window width
-    const y = screen_height - toolbar_height// - offset_y; // Adjust this value based on your window height
+    const x = screen_width - toolbar_width - offset_x; // Adjust this value based on your window width
+    const y = screen_height - toolbar_height - offset_y; // Adjust this value based on your window height
     // Set the window position
     toolbarWindow.setPosition(x, y);
 
@@ -99,7 +100,8 @@ function createToolbarWindow() {
     });
 
     toolbarWindow.on("closed", () => {
-        toolbarWindow = null;
+    //    fadeOutWindow(toolbarWindow);
+    //    toolbarWindow = null;
     });
 }
 
@@ -160,6 +162,20 @@ function fadeInWindow(window) {
     }, 50); // Adjust the interval to control the fade-in smoothness
 }
 
+function fadeOutWindow(window) {
+    let opacity = 1;
+    const interval = setInterval(() => {
+        if (opacity > 0) {
+            opacity -= 0.05; // Adjust the increment to control the fade-in speed
+            window.setOpacity(opacity);
+        } else {
+            clearInterval(interval);
+            window = null;
+        }
+    }, 50); // Adjust the interval to control the fade-in smoothness
+}
+
+
 // Called when the application is ready to start. Anything nested here will be able to run when the application is ready to start.
 app.whenReady().then(() => {
     console.log(`ready`);
@@ -202,7 +218,6 @@ ipcMain.on("button-click", (event, button_click) => {
     } else if (button_click === BUTTON_SHUTDOWN) {
         console.log(`button-4-shutdown`);
         toolbarWindow.close();
-        //app.isQuitting = true;
         app.exit();
     }
 });
@@ -215,3 +230,4 @@ ipcMain.on("close-application", (event) => {
     mainWindow.close(); // Try to close the window. This has the same effect as a user manually clicking the close button of the window
     setReopenTimer(reminder_delay);
 });
+
