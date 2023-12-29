@@ -1,14 +1,9 @@
 /**
  * Settings are set synchronously, meaning that the settings are set before the function returns. (something to double check)
- * 
+ *
  */
 
-const {
-  app,
-  BrowserWindow,
-  ipcMain,
-  dialog,
-} = require("electron/main");
+const { app, BrowserWindow, ipcMain, dialog } = require("electron/main");
 
 const path = require("node:path");
 const settings = require("electron-settings");
@@ -24,98 +19,96 @@ let folder_path_setting;
 
 // Function to create the main window
 function createMainWindow() {
-  mainWindow = new BrowserWindow({
-    width: 400,
-    height: 200,
-    webPreferences: {
-      preload: path.join(__dirname, "renderer/preload.js"),
-    },
-  });
+    mainWindow = new BrowserWindow({
+        width: 200,
+        height: 200,
+        webPreferences: {
+            preload: path.join(__dirname, "renderer/preload.js"),
+        },
+    });
 
-  mainWindow.loadFile(path.join(__dirname, "renderer/index.html"));
+    mainWindow.loadFile(path.join(__dirname, "renderer/index.html"));
 
-  mainWindow.on("closed", function () {
-    mainWindow = null;
-  });
+    mainWindow.on("closed", function () {
+        mainWindow = null;
+    });
 }
 
 function createSettingsWindow() {
-  settingsWindow = new BrowserWindow({
-    width: 400,
-    height: 800,
-    frame: false,
-    titleBarStyle: "hiddenInset",
-    parent: mainWindow,
-    modal: true,      // Have it so nothing else can be selected until the settings window is closed
-    webPreferences: {
-      preload: path.join(__dirname, "renderer/settings/settings_preload.js"),
-    },
-  });
+    settingsWindow = new BrowserWindow({
+        width: 350,
+        height: 450,
+        frame: false,
+        titleBarStyle: "hiddenInset",
+        parent: mainWindow,
+        modal: true, // Have it so nothing else can be selected until the settings window is closed
+        center: true,
+        show: false,
+        webPreferences: {
+            preload: path.join(__dirname, "renderer/settings/settings_preload.js"),
+        },
+    });
 
-  settingsWindow.loadFile(path.join(__dirname, "renderer/settings/settings-window.html"));
+    settingsWindow.loadFile(path.join(__dirname, "renderer/settings/settings-window.html"));
+    settingsWindow.setResizable(false);
 
-  settingsWindow.webContents.on("did-finish-load", () => {
-    console.log(`did-finish-load`);
-  });
+    settingsWindow.webContents.on("did-finish-load", () => {
+        console.log(`did-finish-load`);
+    });
 
-  settingsWindow.on("closed", function () {
-    settingsWindow = null;
-  });
+    // settingsWindow.on("closed", function () {
+    //     settingsWindow = null;
+    // });
 }
 
 // Function to initialize settings
 function initializeSettings() {
-  reminder_time_setting = settings.getSync("reminder_time_setting");
-  snooze_time_setting = settings.getSync("snooze_time_setting");
-  start_time_setting = settings.getSync("start_time_setting");
-  end_time_setting = settings.getSync("end_time_setting");
-  folder_path_setting = settings.getSync("folder_path_setting");
+    reminder_time_setting = settings.getSync("reminder_time_setting");
+    snooze_time_setting = settings.getSync("snooze_time_setting");
+    start_time_setting = settings.getSync("start_time_setting");
+    end_time_setting = settings.getSync("end_time_setting");
+    folder_path_setting = settings.getSync("folder_path_setting");
 }
 
 // Called when the application is ready to start. Anything nested here will be able to run when the application is ready to start.
 app.whenReady().then(() => {
-  console.log(`ready`);
-  ipcMain.handle('open-folder-dialog', handleFolderOpen)  // Handle folder open dialog
-  ipcMain.handle('load-settings', handleLoadSettings)   // Handle loading settings
-  initializeSettings();
-  createMainWindow();
+    console.log(`ready`);
+    ipcMain.handle("open-folder-dialog", handleFolderOpen); // Handle folder open dialog
+    ipcMain.handle("load-settings", handleLoadSettings); // Handle loading settings
+    initializeSettings();
+    createMainWindow();
+    createSettingsWindow();
 });
 
 ipcMain.on("open-settings", (event) => {
-  console.log(`open-settings`);
-  createSettingsWindow();
+    console.log(`open-settings`);
+    settingsWindow.show();
 });
 
 ipcMain.on("close-settings", (event) => {
-  console.log(`close-settings`);
-  settingsWindow.close();
+    console.log(`close-settings`);
+    settingsWindow.hide();
 });
 
 // Function to handle loading settings
 async function handleLoadSettings() {
-  console.log(`load-settings`);
-  console.log(`reminder_time_setting: ${reminder_time_setting}`);
-  return [
-    reminder_time_setting,
-    snooze_time_setting,
-    start_time_setting,
-    end_time_setting,
-    folder_path_setting,
-  ];
+    console.log(`load-settings`);
+    console.log(`reminder_time_setting: ${reminder_time_setting}`);
+    return [reminder_time_setting, snooze_time_setting, start_time_setting, end_time_setting, folder_path_setting];
 }
 
 // Function to handle opening folder dialog (async)
 async function handleFolderOpen() {
-  // Open file system dialog
-  const { canceled, filePaths } = await dialog.showOpenDialog({ properties: ["openDirectory"] })
-  const selectedFolder = filePaths[0];
-  if (!canceled) {
-    console.log("Selected Folder:", selectedFolder);
-    // Save folder path
-    settings.set("folder_path_setting", selectedFolder);
-    folder_path_setting = selectedFolder;
-    // Send selected folder path to main window
-    return selectedFolder;
+    // Open file system dialog
+    const { canceled, filePaths } = await dialog.showOpenDialog({ properties: ["openDirectory"] });
+    const selectedFolder = filePaths[0];
+    if (!canceled) {
+        console.log("Selected Folder:", selectedFolder);
+        // Save folder path
+        settings.set("folder_path_setting", selectedFolder);
+        folder_path_setting = selectedFolder;
+        // Send selected folder path to main window
+        return selectedFolder;
     }
 }
 
@@ -135,6 +128,4 @@ ipcMain.on("apply-settings", (event, reminderTime, snoozeTime, startTime, endTim
     end_time_setting = endTime;
 
     console.log(`reminder_time_setting: ${reminder_time_setting}`);
-
-  }
-);
+});

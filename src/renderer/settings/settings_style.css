@@ -1,59 +1,89 @@
 body {
-    font-family: Arial, sans-serif;
     margin: 0;
-    padding: 0;
-    background-color: #f0f0f0;
-  }
-  
-  .container {
-    max-width: 600px;
-    margin: 50px auto;
     background-color: #fff;
-    padding: 20px;
+}
+
+.container {
+    width: 300px;
+    background-color: #fff;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .section {
-    margin-bottom: 20px;
-  }
-  
-  label {
+    margin-left: 15px;
+    margin-top: 30px;
+    overflow: hidden;
+}
+
+label {
     display: block;
     margin-bottom: 5px;
-  }
+}
 
-  .title-bar {
+.title-bar {
     background-color: #333;
     color: white;
     padding: 8px;
     user-select: none;
     -webkit-app-region: drag; /* Make the title bar draggable */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+}
 
-  .title {
+.title {
     font-size: 14px;
-  }
-  
-  input {
-    width: 100%;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 130px 130px;
+}
+
+input {
+    width: 100px;
     padding: 8px;
     margin-bottom: 10px;
-  }
-  
-  button {
+}
+
+button {
+    width: 120px;
     padding: 10px;
-    background-color: #007BFF;
+    background-color: #007bff;
     color: #fff;
     border: none;
     cursor: pointer;
     border-radius: 4px;
-  }
-  
-  button:hover {
+}
+
+button:hover {
     background-color: #0056b3;
-  }
-  
+}
+#folderPath {
+    width: 230px;
+    overflow-y: auto;
+}
+
+/*https://www.w3schools.com/css/tryit.asp?filename=trycss_tooltip_transition*/
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 200px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -60px;
+
+    /* Fade in tooltip - takes 1 second to go from 0% to 100% opac: */
+    opacity: 0;
+    transition: opacity 1s;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}

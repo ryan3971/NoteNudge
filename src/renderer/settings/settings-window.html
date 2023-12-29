@@ -11,53 +11,64 @@
 <body>
     <div class="title-bar" id="drag-region">
         <div class="title">Preferences</div>
-      </div>
-
-    <div class="container">
-        <h1>Reminder Settings</h1>
-
-        <!-- Reminder Time Section -->
-        <div class="section">
-            <label for="reminderHour">Reminder Time:</label>
-            <input type="number" id="reminderHour" min="0" max="23" placeholder="Hour" required>
-            <input type="number" id="reminderMinute" min="0" max="59" placeholder="Minute" required>
-          </div>
-
-        <!-- Snooze Time Section -->
-        <div class="section">
-            <div class="section">
-                <label for="snoozeHour">Snooze Time:</label>
-                <input type="number" id="snoozeHour" min="0" max="23" placeholder="Hour" required>
-                <input type="number" id="snoozeMinute" min="0" max="59" placeholder="Minute" required>
-              </div>
-
-        <!-- Start and End Time Section -->
-        <div class="section">
-            <label for="startTime">Start Time:</label>
-            <input type="time" id="startTime" required>
-            <label for="endTime">End Time:</label>
-            <input type="time" id="endTime" required>
-            <!--  <button onclick="submitStartEndTime()">Submit</button> -->
-        </div>
-
-        <!-- Folder Selection Section -->
-        <div class="section">
-            <label for="folderPath">Select Folder:</label>
-            <input type="text" id="folderPath" readonly>
-            <button onclick="openFolderDialog()">Select Folder</button>
-        </div>
     </div>
 
     <div class="container">
-        <!--Close Settings Button-->
-        <div class="section">
-            <button id="apply-settings" onclick="applySettings()">Apply Settings</button>
-
-        <!--Close Settings Button-->
-        <div class="section">
-            <button id="close-settings" onclick="closeSettings()">Close Settings</button>
+        <!-- Reminder Time Section; Hover text not working for this for some reason... -->
+        <div class="tooltip">
+            <div class="text">Reminder Time:</div>
+            <span class="tooltiptext">Time between Entries</span>
+        </div>
+        <div class="grid-container">
+            <input type="number" id="reminderHour" min="0" max="23" placeholder="Hour">
+            <input type="number" id="reminderMinute" min="0" max="59" placeholder="Minute">
         </div>
 
-        <script src="./settings_renderer.js"></script>
-    </body>
+        <!-- Snooze Time Section -->
+        <div class="tooltip">
+            <div class="text">Snooze Time:</div>
+            <span class="tooltiptext">Time between Entries</span>
+        </div>
+        <div class="grid-container">
+            <input type="number" id="snoozeHour" min="0" max="23" placeholder="Hour">
+            <input type="number" id="snoozeMinute" min="0" max="59" placeholder="Minute">
+        </div>
+
+        <!-- Start and End Time Section -->
+        <div class="grid-container">
+            <div class="tooltip">
+                <div class="text">Start Time:</div>
+                <span class="tooltiptext">Reminders will begin after this time</span>
+            </div>
+            <div class="tooltip">
+                <div class="text">End Time:</div>
+                <span class="tooltiptext">Reminders will stop occurring after this time</span>
+            </div>
+        </div>
+        <div class="grid-container">
+            <input type="time" id="startTime" required>
+            <input type="time" id="endTime" required>
+        </div>
+        <!--  <button onclick="submitStartEndTime()">Submit</button> -->
+
+        <!-- Folder Selection Section -->
+        <div class="tooltip">
+            <div class="text">Select Folder:</div>
+            <span class="tooltiptext">Location of the genreated word doc</span>
+        </div>
+        <input type="text" id="folderPath" readonly>
+        <button onclick="openFolderDialog()">Select Folder</button>
+    </div>
+
+    <div class="container">
+        <div class="grid-container">
+            <!--Close Settings Button-->
+            <button id="apply-settings" onclick="applySettings()">Apply Settings</button>
+            <!--Close Settings Button-->
+            <button id="close-settings" onclick="closeSettings()">Close Settings</button>
+        </div>
+    </div>
+    <script src="./settings_renderer.js"></script>
+</body>
+
 </html>
