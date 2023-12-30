@@ -73,12 +73,12 @@ settings_button.addEventListener("click", () => {
 
 skip_button.addEventListener("click", () => {
     console.log(`skip_button`);
-    window.electronAPI.handleSkipEntry(BUTTON_SKIP);
+    window.electronAPI.handleSkipEntry();
 });
 
 snooze_button.addEventListener("click", () => {
     console.log(`snooze_button`);
-    window.electronAPI.handleSnoozeEntry(BUTTON_SNOOZE);
+    window.electronAPI.handleSnoozeEntry();
 });
 
 // Create a listener for the close-application event
@@ -86,7 +86,7 @@ close_button.addEventListener("click", () => {
     console.log(`Button clicked!`);
 
     // Handle closing the application here
-    window.electronAPI.handleCloseApplication("close-application");
+    window.electronAPI.handleCloseApplication();
 });
 
 
