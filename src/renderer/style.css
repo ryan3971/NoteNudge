@@ -4,12 +4,11 @@ body {
 }
 .app-container {
     padding: 20px;
+    border-radius: 10px;
     background-image: linear-gradient(#87ceeb, #f0ffff, #87ceeb);
+    background-color: #f6f6f6;
     display: flex;
     flex-direction: row;
-    background-color: #f6f6f6;
-    border-radius: 10px;
-    /* border: 2px solid blue;  */
 }
 
 #editor-container {
@@ -19,13 +18,14 @@ body {
 
 .toolbar-container {
     height: 40px;
-    background-color: #f6f6f6;
-    display: flex;
-    align-items: center;
-    border-top-left-radius: 10px;
-    -webkit-app-region: drag;
     border-left: 1px solid #d3d3d3;
     border-top: 1px solid #d3d3d3;
+    border-top-left-radius: 10px;
+    background-color: #f6f6f6;
+
+    align-items: center;
+    display: flex;
+    -webkit-app-region: drag;
 }
 
 /* border created by default from Quill */
@@ -56,28 +56,30 @@ body {
 
 #editor {
     height: 320px;
-    overflow-x: auto;
-    overflow-y: auto;
-    background-color: #f0ffff;
     border: 1px solid #d3d3d3;
     border-bottom-left-radius: 10px;
+    background-color: #f0ffff;
+    overflow-x: auto;
+    overflow-y: auto;
 }
 
 .button-column {
-    background-color: #f6f6f6;
     width: 40px;
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
-    align-items: center;
-    text-align: center;
-    gap: 10px;
-    padding-top: 45px;
-    border-radius: 0px 10px 10px 0px;
-    -webkit-app-region: drag;
     border-bottom: 1px solid #d3d3d3;
     border-right: 1px solid #d3d3d3;
-    border-top: 1px solid #d3d3d3;
+    border-top: 1px solid #d3d3d3; 
+    padding-top: 45px;
+    border-radius: 0px 10px 10px 0px;  
+
+    background-color: #f6f6f6;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: start;
+    align-items: center;
+    text-align: center;     /*do I need this?*/
+    -webkit-app-region: drag;
+
 }
 
 button {
@@ -85,10 +87,6 @@ button {
     width: 30px;
     background-color: transparent;
     border: none;
-    /* border-radius: 10px; */
-    /* background-color: #f0ffff; */
-    /* color: #fff; */
-    /* border: 1px solid black; */
     cursor: pointer;
     -webkit-app-region: no-drag;
 }
