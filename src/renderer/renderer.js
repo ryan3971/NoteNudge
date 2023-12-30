@@ -1,5 +1,5 @@
 // // renderer.js
-const save_entry_button = document.getElementById("saveEntry");
+const save_entry_button = document.getElementById("button-1");
 var quill;
 Quill.register("modules/blotFormatter", QuillBlotFormatter.default);
 //Quill.register("modules/imageDrop", ImageDrop);

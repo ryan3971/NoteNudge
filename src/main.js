@@ -27,6 +27,7 @@ function createMainWindow() {
         width: 900,
         height: 400,
         frame: false,
+        resizable: false,
         webPreferences: {
             preload: path.join(__dirname, "renderer/preload.js"),
             nodeIntegration: true,

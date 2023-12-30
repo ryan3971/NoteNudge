@@ -1,4 +1,5 @@
 <!-- index.html -->
+<!-- index.html -->
 <link href="https://cdn.quilljs.com/1.0.0/quill.snow.css" rel="stylesheet">
 
 <!DOCTYPE html>
@@ -8,59 +9,74 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
-  <title>Electron Screen Capture Example</title>
 </head>
 
 <body>
-  <div class="title-bar" id="title_section">
-    <div class="title">Daily Log</div>
-  </div>
-
   <div class="app-container">
     <div id="editor-container">
-      <div id="toolbar">
+      <div class="toolbar-container" id="toolbar">
+        <div class="toolbar-button-container">
+          <button class="ql-bold"></button>
+          <button class="ql-italic"></button>
+          <button class="ql-underline"></button>
+        </div>
 
-        <button class="ql-bold"></button>
-        <button class="ql-italic"></button>
-        <button class="ql-underline"></button>
+        <div class="toolbar-button-container">
+          <button class="ql-list" value="ordered"></button>
+          <button class="ql-list" value="bullet"></button>
+        </div>
 
-        <button class="ql-list" value="ordered"></button>
-        <button class="ql-list" value="bullet"></button>
+        <div class="toolbar-button-container">
+          <button class="ql-indent" value="-1"></button>
+          <button class="ql-indent" value="+1"></button>
+        </div>
 
-        <button class="ql-indent" value="-1"></button>
-        <button class="ql-indent" value="+1"></button>
+        <div class="toolbar-button-container">
+          <button class="ql-link"></button>
+          <button class="ql-image"></button>
+        </div>
 
-        <button class="ql-link"></button>
-        <button class="ql-image"></button>
+        <div class="toolbar-button-container">
+          <button class="ql-clean"></button>
+        </div>
 
-        <button class="ql-clean"></button>
-
-        <button id="capture-image-button"></button>
-
+        <div class="toolbar-button-container">
+          <button id="capture-image-button"></button>
+        </div>
       </div>
-      <div id="editor">
-        <!-- Quill editor content will be rendered here -->
-      </div>
+
+      <div id="editor"></div>
     </div>
 
     <div class="button-column">
 
       <div class="tooltip">
-        <button id="saveEntry">Save Entry</button>
-        <span class="tooltiptext">Save Entry</span>
+        <button class="button-option" id="button-1"></button>
+        <span class="tooltiptext">Submit Entry</span>
       </div>
 
-      <button>Button 2</button>
-      <button>Button 3</button>
-      <button>Button 4</button>
-      <button>Button 5</button>
+      <div class="tooltip">
+        <button class="button-option" id="button-2"></button>
+        <span class="tooltiptext">Settings</span>
+      </div>
+
+      <div class="tooltip">
+        <button class="button-option" id="button-3"></button>
+        <span class="tooltiptext">Skip Entry</span>
+      </div>
+
+      <div class="tooltip">
+        <button class="button-option" id="button-4"></button>
+        <span class="tooltiptext">Snooze Reminder</span>
+      </div>
+
+      <div class="tooltip">
+        <button class="button-option" id="button-5"></button>
+        <span class="tooltiptext">Shut down</span>
+      </div>
     </div>
 
   </div>
-
-
-
-
   <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
   <script src="../../node_modules/quill-blot-formatter/dist/quill-blot-formatter.min.js"></script>
   <script src="../../node_modules/quill-image-drop-module/image-drop.min.js"></script>
