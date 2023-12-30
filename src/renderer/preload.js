@@ -1,7 +1,8 @@
-const { contextBridge, ipcRenderer } = require('electron/renderer')
+const { contextBridge, ipcRenderer} = require('electron/renderer')
 
-contextBridge.exposeInMainWorld('electronAPI', {
-  handleCloseApplication: () => ipcRenderer.send('close-application'),        // Function to handle closing the application
-  handleSubmitEntry: (entry) => ipcRenderer.send('submit-entry', entry),      // Function to handle submitting an entry
-  handleOpenSettings: () => ipcRenderer.send('open-settings')                 // Function to handle opening the settings window
+contextBridge.exposeInMainWorld("electronAPI", {
+    handleSaveEntry: (entry) => ipcRenderer.send("save-entry", entry),
+    handleStartSelection: () => ipcRenderer.send("start-selection"),
+    handleCroppedImage: (callback) => ipcRenderer.on("image-captured", (_event, image) => callback(image)),
+    handleCloseApplication: () => ipcRenderer.send("close-application"), // Function to handle closing the application
 });

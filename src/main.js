@@ -4,14 +4,19 @@ const path = require("node:path");
 
 const { spawn } = require("child_process");
 
+const screenshot = require("screenshot-desktop");
+const sharp = require("sharp");
+const DatauriParser = require("datauri/parser");
+
 let mainWindow;
 let toolbarWindow;
+let selectionWindow;
 
 let tray = null;
 
 // Additional offset from the bottom-right corner of the screen for the toolbar window
-const offset_x = 100;
-const offset_y = 100;
+const offset_x = 75;
+const offset_y = 50;
 
 // Set the timer for 30 minutes (30 minutes * 60 seconds * 1000 milliseconds)
 const reminder_delay = 3000; //30 * 60 * 1000;
@@ -23,17 +28,23 @@ const BUTTON_SKIP = 2;
 const BUTTON_SNOOZE = 3;
 const BUTTON_SHUTDOWN = 4;
 
+let DOCUMENT_PATH;
+
 // Function to create the main window
 function createMainWindow() {
     mainWindow = new BrowserWindow({
-        width: 400,
-        height: 200,
+        width: 900,
+        height: 400,
         titleBarStyle: "hidden",
         titleBarOverlay: false,
+        frame: false,
+        resizable: false,
         show: false,
         skipTaskbar: true,
         webPreferences: {
             preload: path.join(__dirname, "renderer/preload.js"),
+            nodeIntegration: true,
+            contextIsolation: true,
         },
     });
 
@@ -103,6 +114,32 @@ function createToolbarWindow() {
     //    fadeOutWindow(toolbarWindow);
     //    toolbarWindow = null;
     });
+}
+
+
+function createSelectionWindow() {
+    selectionWindow = new BrowserWindow({
+        width: screen.getPrimaryDisplay().bounds.width,
+        height: screen.getPrimaryDisplay().bounds.height,
+        x: 0,
+        y: 0,
+        frame: false,
+        transparent: true,
+        alwaysOnTop: true,
+        show: false,
+        webPreferences: {
+            nodeIntegration: true,
+            preload: path.join(__dirname, "renderer/selection/selectionPreload.js"),
+        },
+    });
+
+    selectionWindow.setIgnoreMouseEvents(false); // Set to true to ignore mouse events when the window is clicked
+
+    selectionWindow.on("closed", function () {
+        selectionWindow = null;
+    });
+
+    selectionWindow.loadFile(path.join(__dirname, "renderer/selection/selectionWindow.html"));
 }
 
 // Function to create the traybar window
@@ -182,6 +219,9 @@ app.whenReady().then(() => {
     createToolbarWindow();
     createMainWindow();
     createTray();
+    createSelectionWindow();
+
+    DOCUMENT_PATH = path.join(__dirname, "assets/scripts", "Daily Log.docx"); // Replace with settings value
 
     // called when the window is closing
     app.on("before-quit", (event) => {
@@ -219,6 +259,84 @@ ipcMain.on("button-click", (event, button_click) => {
         console.log(`button-4-shutdown`);
         toolbarWindow.close();
         app.exit();
+    }
+});
+
+
+ipcMain.on("save-entry", async (event, content) => {
+    console.log(`save-entry`);
+
+    const pythonProcess = spawn("python", [path.join(__dirname, "assets/scripts/", "word_doc.py")], {
+        stdio: ["pipe", "pipe", "pipe"],
+    });
+
+    jsonString = JSON.stringify({ content: content });
+
+    // Send JSON data to Python script through stdin
+    pythonProcess.stdin.write(jsonString);
+    pythonProcess.stdin.write("\n"); // Needed to separate the JSON data from the file path
+    pythonProcess.stdin.write(DOCUMENT_PATH);
+    pythonProcess.stdin.end();
+
+    pythonProcess.stdout.on("data", (data) => {
+        console.log(`Python script output: ${data}`);
+    });
+
+    pythonProcess.stderr.on("data", (data) => {
+        console.error(`Python script error: ${data}`);
+    });
+
+    // Handle exit event
+    pythonProcess.on("exit", (code) => {
+        console.log(`Python script exited with code ${code}`);
+    });
+});
+
+ipcMain.on("start-selection", async (event) => {
+    console.log(`start-selection`);
+    mainWindow.hide();
+    selectionWindow.show();
+});
+
+ipcMain.on("capture-selection", async (event, left, top, width, height) => {
+    console.log(`capture-selection`);
+    selectionWindow.hide();
+    try {
+        // Capture the screenshot
+        screenshot().then(async (img) => {
+            // get the dimensions of the screen and the image, then calculate the crop dimensions
+            // Not sure how good of a solution this is - double check (and take rect border into account)
+            const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().bounds;
+            const { width: imgWidth, height: imgHeight } = await sharp(img).metadata();
+
+            scaledLeft = Math.round((left / screenWidth) * imgWidth);
+            scaledTop = Math.round((top / screenHeight) * imgHeight);
+            scaledWidth = Math.round((width / screenWidth) * imgWidth);
+            scaledHeight = Math.round((height / screenHeight) * imgHeight);
+
+            // Crop the image and convert to png format (png format is necessary for the saving to docx)
+            const croppedImgBuffer = await sharp(img)
+                .png()
+                .extract({
+                    left: scaledLeft,
+                    top: scaledTop,
+                    width: scaledWidth,
+                    height: scaledHeight,
+                })
+                .toBuffer();
+
+            const parser = new DatauriParser();
+            const dataUrl = parser.format(".png", croppedImgBuffer).content;
+
+            mainWindow.webContents.send("image-captured", dataUrl);
+
+            // Hide the selection window and show the main window
+            selectionWindow.hide();
+            mainWindow.show();
+            console.log(`Screenshot saved`);
+        });
+    } catch (err) {
+        console.error("Error capturing screenshot:", err);
     }
 });
 

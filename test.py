@@ -1,41 +1,39 @@
-import datetime
+# save_script.py
+import json
+import sys
+from htmldocx import HtmlToDocx
 from docx import Document
 
-def append_entry_to_word_doc(entry_text):
-    # Get the current date and Monday of the current week
-    today = datetime.date.today()
-    monday = today - datetime.timedelta(days=today.weekday())
+def save_to_docx(content):
+    # Convert HTML to DOCX
+    document = Document()
+    new_parser = HtmlToDocx()
+    # do stuff to document
 
-    # Format the headings
-    week_heading = f"Week of {monday.strftime('%B %d')}"
-    weekday_heading = today.strftime('%A')
-    entry_number_heading = f"Entry #{get_entry_number()}"
+    new_parser.add_html_to_document(content, document)
 
-    # Open the word document
-    doc = Document('path/to/your/document.docx')
+    # do more stuff to document
+    document.save('output.docx')
 
-    # Find or create the appropriate headings
-    week_heading_found = False
-    for paragraph in doc.paragraphs:
-        if paragraph.text == week_heading:
-            week_heading_found = True
-            break
+#if __name__ == "__main__":
+    
 
-    if not week_heading_found:
-        doc.add_heading(week_heading, level=1)
+    
+text = '{"content": "<p>This is some <strong>rich text</strong> content.</p>"}'
 
-    doc.add_heading(weekday_heading, level=2)
-    doc.add_heading(entry_number_heading, level=3)
+try:
+    # Read input from the standard input
+    #input_data = json.loads(text)
+    input_data = json.loads(sys.argv[1])
+    content = input_data.get('content', '')
 
-    # Append the entry text
-    doc.add_paragraph(entry_text)
+    # Save content to DOCX
+    save_to_docx(content)
 
-    # Save and close the document
-    doc.save('path/to/your/document.docx')
-    doc.close()
+    # Optional: Return a success message
+    print(json.dumps({'status': 'success'}))
 
-def get_entry_number():
-    # Implement your logic to retrieve the entry number
-    # This could involve reading from a file or database
-    # and incrementing the value accordingly
-    pass
+except Exception as e:
+    # Print an error message if an exception occurs
+    print(json.dumps({'status': 'error', 'message': str(e)}), file=sys.stderr)
+    sys.exit(1)

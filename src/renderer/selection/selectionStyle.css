@@ -1,0 +1,14 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: transparent;
+}
+
+#selectionRect {
+    position: absolute;                 /* Make sure the selection rectangle is positioned relative to the document */
+    border: 1px dashed #ff0000;
+    pointer-events: none;               /* Make sure the selection rectangle doesn't interfere with mouse clicks */
+    z-index: 999999;                    /* Make sure the selection rectangle is on top */
+    display: none;                      /* Initially hide the selection rectangle */
+}
