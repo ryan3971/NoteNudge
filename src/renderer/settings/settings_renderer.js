@@ -38,9 +38,9 @@ function applySettings() {
   reminderTime = reminderHour * 60 + reminderMinute;
   snoozeTime = snoozeHour * 60 + snoozeMinute;
 
-  if (!validateReminderTime(reminderTime)) return;
-  if (!validateSnoozeTime(snoozeTime, reminderTime)) return;
-  if (!validateStartEndTime(startTime, endTime)) return;
+  if (!validateReminderTime(reminderTime)) return false;
+  if (!validateSnoozeTime(snoozeTime, reminderTime)) return false;
+  if (!validateStartEndTime(startTime, endTime)) return false;
 
   window.electronAPI.handleApplySettings(
     reminderTime,
@@ -50,6 +50,7 @@ function applySettings() {
   );
 
   console.log("Settings Saved");
+  return true
 }
 
 // Function to handle validating reminder time
@@ -100,10 +101,6 @@ function validateStartEndTime(startTime, endTime) {
     return false;
   }
 
-  //   if (endTime < startTime) {
-  //     alert("End time cannot be less than start time.");
-  //     return false;
-  //   }
   return true;
 }
 
@@ -117,6 +114,6 @@ async function openFolderDialog() {
 
 function closeSettings() {
   console.log("Close Settings Window");
-  applySettings();
+  if (!applySettings()) return;
   window.electronAPI.handleCloseApplication();
 }

@@ -43,7 +43,7 @@ body {
     border-left: 1px solid #d3d3d3;
 }
 
-#capture-image-button {
+#crop-image-button {
     background-image: url("../assets/images/screenshot_region_FILL1_wght700_GRAD200_opsz48.png");
     background-repeat: no-repeat;
     background-size: 25px 25px;
@@ -96,7 +96,7 @@ button:hover {
     border: 1px solid blue;
 }
 
-#button-1 {
+#button-submit-entry {
     background-image: url("../assets/images/done_FILL1_wght700_GRAD200_opsz48.png");
     background-repeat: no-repeat;
     background-size: 25px 25px;
@@ -108,19 +108,19 @@ button:hover {
     background-size: 25px 25px;
     background-position: center center;
 }
-#button-3 {
+#button-skip {
     background-image: url("../assets/images//skip_next_FILL1_wght700_GRAD200_opsz48.png");
     background-repeat: no-repeat;
     background-size: 25px 25px;
     background-position: center center;
 }
-#button-4 {
+#button-snooze {
     background-image: url("../assets/images/snooze_FILL1_wght700_GRAD200_opsz48.png");
     background-repeat: no-repeat;
     background-size: 25px 25px;
     background-position: center center;
 }
-#button-5 {
+#button-close {
     background-image: url("../assets/images//power_settings_new_FILL1_wght700_GRAD200_opsz48.png");
     background-repeat: no-repeat;
     background-size: 25px 25px;

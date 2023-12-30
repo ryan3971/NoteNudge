@@ -11,38 +11,39 @@ const { spawn } = require("child_process");
 
 const screenshot = require("screenshot-desktop");
 const sharp = require("sharp");
+
 const DatauriParser = require("datauri/parser");
 
 const settings = require("electron-settings");
 
 let mainWindow;
 let toolbarWindow;
-let selectionWindow;
+let croppingWindow;
 let settingsWindow;
 
-let tray = null;
+let trayBar = null;
 
 // Additional offset from the bottom-right corner of the screen for the toolbar window
-const offset_x = 75;
-const offset_y = 50;
+const window_offset_x = 75;
+const window_offset_y = 50;
 
 // Set the timer for 30 minutes (30 minutes * 60 seconds * 1000 milliseconds)
 const reminder_delay = 3000; //30 * 60 * 1000;
 const snooze_delay = 1000;
 
 // Constaant Variables
-const BUTTON_MAINWINDOW = 1;
+const BUTTON_MAIN_WINDOW = 1;
 const BUTTON_SKIP = 2;
 const BUTTON_SNOOZE = 3;
-const BUTTON_SHUTDOWN = 4;
+const BUTTON_CLOSE = 4;
 
-let DOCUMENT_PATH;
+let setting_reminder_time;
+let setting_snooze_tim;
+let setting_start_time;
+let setting_end_time;
+let setting_folder_path;
 
-let reminder_time_setting;
-let snooze_time_setting;
-let start_time_setting;
-let end_time_setting;
-let folder_path_setting;
+/*--------Window Creation Functions--------*/
 
 // Function to create the main window
 function createMainWindow() {
@@ -67,8 +68,8 @@ function createMainWindow() {
     const [window_width, window_height] = mainWindow.getSize();
 
     // Calculate the position for the bottom-right corner
-    const x = screen_width - window_width - offset_x; // Adjust this value based on your window width
-    const y = screen_height - window_height - offset_y; // Adjust this value based on your window height
+    const x = screen_width - window_width - window_offset_x; // Adjust this value based on your window width
+    const y = screen_height - window_height - window_offset_y; // Adjust this value based on your window height
     // Set the window position
     mainWindow.setPosition(x, y);
 
@@ -111,8 +112,8 @@ function createToolbarWindow() {
     const [toolbar_width, toolbar_height] = toolbarWindow.getSize();
 
     // Calculate the position for the bottom-right corner
-    const x = screen_width - toolbar_width - offset_x; // Adjust this value based on your window width
-    const y = screen_height - toolbar_height - offset_y; // Adjust this value based on your window height
+    const x = screen_width - toolbar_width - window_offset_x; // Adjust this value based on your window width
+    const y = screen_height - toolbar_height - window_offset_y; // Adjust this value based on your window height
     // Set the window position
     toolbarWindow.setPosition(x, y);
 
@@ -130,8 +131,8 @@ function createToolbarWindow() {
     });
 }
 
-function createSelectionWindow() {
-    selectionWindow = new BrowserWindow({
+function createCroppingWindow() {
+    croppingWindow = new BrowserWindow({
         width: screen.getPrimaryDisplay().bounds.width,
         height: screen.getPrimaryDisplay().bounds.height,
         x: 0,
@@ -146,13 +147,13 @@ function createSelectionWindow() {
         },
     });
 
-    selectionWindow.setIgnoreMouseEvents(false); // Set to true to ignore mouse events when the window is clicked
+    croppingWindow.setIgnoreMouseEvents(false); // Set to true to ignore mouse events when the window is clicked
 
-    selectionWindow.on("closed", function () {
-        selectionWindow = null;
+    croppingWindow.on("closed", function () {
+        croppingWindow = null;
     });
 
-    selectionWindow.loadFile(path.join(__dirname, "renderer/selection/selectionWindow.html"));
+    croppingWindow.loadFile(path.join(__dirname, "renderer/selection/selectionWindow.html"));
 }
 
 function createSettingsWindow() {
@@ -165,13 +166,14 @@ function createSettingsWindow() {
         modal: true, // Have it so nothing else can be selected until the settings window is closed
         center: true,
         show: false,
+        resizable: false,
         webPreferences: {
             preload: path.join(__dirname, "renderer/settings/settings_preload.js"),
         },
     });
 
     settingsWindow.loadFile(path.join(__dirname, "renderer/settings/settings-window.html"));
-    settingsWindow.setResizable(false);
+//    settingsWindow.setResizable(false);
 
     settingsWindow.webContents.on("did-finish-load", () => {
         console.log(`did-finish-load`);
@@ -183,9 +185,9 @@ function createSettingsWindow() {
 }
 
 // Function to create the traybar window
-function createTray() {
+function createTrayBar() {
     const trayIcon = path.join(__dirname, "assets/images/icon.png");
-    tray = new Tray(trayIcon);
+    trayBar = new Tray(trayIcon);
 
     const contextMenu = Menu.buildFromTemplate([
         {
@@ -216,8 +218,8 @@ function createTray() {
             },
         },
     ]);
-    tray.setToolTip("My Electron App");
-    tray.setContextMenu(contextMenu);
+    trayBar.setToolTip("My Electron App");
+    trayBar.setContextMenu(contextMenu);
 }
 
 // Function to set the timer to reopen the application
@@ -227,6 +229,8 @@ function setReopenTimer(reopenDelay) {
         createToolbarWindow();
     }, reopenDelay);
 }
+
+/*--------Animation Functions--------*/
 
 function fadeInWindow(window) {
     let opacity = 0;
@@ -253,27 +257,31 @@ function fadeOutWindow(window) {
     }, 50); // Adjust the interval to control the fade-in smoothness
 }
 
+/*--------Settings Functions--------*/
 
 // Function to initialize settings
 function initializeSettings() {
-    reminder_time_setting = settings.getSync("reminder_time_setting");
-    snooze_time_setting = settings.getSync("snooze_time_setting");
-    start_time_setting = settings.getSync("start_time_setting");
-    end_time_setting = settings.getSync("end_time_setting");
-    folder_path_setting = settings.getSync("folder_path_setting");
+    setting_reminder_time = settings.getSync("reminder_time_setting");
+    setting_snooze_tim = settings.getSync("snooze_time_setting");
+    setting_start_time = settings.getSync("start_time_setting");
+    setting_end_time = settings.getSync("end_time_setting");
+    setting_folder_path = settings.getSync("folder_path_setting");
 }
 
 // Called when the application is ready to start. Anything nested here will be able to run when the application is ready to start.
+// This is only going to run on start up of application - double check what should go here
 app.whenReady().then(() => {
     console.log(`ready`);
     createToolbarWindow();
     createMainWindow();
-    createTray();
-    createSelectionWindow();
+
+    ipcMain.handle("open-folder-dialog", handleFolderOpen);         // Handle folder open dialog
+    ipcMain.handle("load-settings", handleLoadSettings);            // Handle loading settings
+
+    createTrayBar();
+    createCroppingWindow();
     initializeSettings();
     createSettingsWindow();
-
-    DOCUMENT_PATH = path.join(__dirname, "assets/scripts", "Daily Log.docx"); // Replace with settings value
 
     // called when the window is closing
     app.on("before-quit", (event) => {
@@ -282,76 +290,50 @@ app.whenReady().then(() => {
     });
 });
 
+/*--------Taskbar Event Listeners--------*/
 // Listen for button-clicked events from renderer process
-ipcMain.on("button-click", (event, button_click) => {
-    console.log(`Button ${button_click} clicked in the main process!`);
+ipcMain.on("taskbar-event", (event, taskbar_event) => {
+    console.log(`taskbar-event`);
 
     // Handle Button 1 event here
-    if (button_click === BUTTON_MAINWINDOW) {
-        console.log(`button-1-mainWindow`);
+    if (taskbar_event === BUTTON_MAIN_WINDOW) {
+        console.log(`BUTTON_MAIN_WINDOW`);
 
         // Close the toolbar window and open the main window
         toolbarWindow.close();
         mainWindow.show();
 
         // Skip the reminder
-    } else if (button_click === BUTTON_SKIP) {
-        console.log(`button-2-skip`);
+    } else if (taskbar_event === BUTTON_SKIP) {
+        console.log(`BUTTON_SKIP`);
         toolbarWindow.close();
         setReopenTimer(reminder_delay);
 
         // Snooze the reminder
-    } else if (button_click === BUTTON_SNOOZE) {
-        console.log(`button-3-snooze`);
+    } else if (taskbar_event === BUTTON_SNOOZE) {
+        console.log(`BUTTON_SNOOZE`);
         toolbarWindow.close();
         setReopenTimer(snooze_delay);
 
         // Shutdown application
-    } else if (button_click === BUTTON_SHUTDOWN) {
-        console.log(`button-4-shutdown`);
+    } else if (taskbar_event === BUTTON_CLOSE) {
+        console.log(`BUTTON_CLOSE`);
         toolbarWindow.close();
         app.exit();
     }
 });
 
-ipcMain.on("save-entry", async (event, content) => {
-    console.log(`save-entry`);
+/*--------Cropping Event Listeners--------*/
 
-    const pythonProcess = spawn("python", [path.join(__dirname, "assets/scripts/", "word_doc.py")], {
-        stdio: ["pipe", "pipe", "pipe"],
-    });
-
-    jsonString = JSON.stringify({ content: content });
-
-    // Send JSON data to Python script through stdin
-    pythonProcess.stdin.write(jsonString);
-    pythonProcess.stdin.write("\n"); // Needed to separate the JSON data from the file path
-    pythonProcess.stdin.write(DOCUMENT_PATH);
-    pythonProcess.stdin.end();
-
-    pythonProcess.stdout.on("data", (data) => {
-        console.log(`Python script output: ${data}`);
-    });
-
-    pythonProcess.stderr.on("data", (data) => {
-        console.error(`Python script error: ${data}`);
-    });
-
-    // Handle exit event
-    pythonProcess.on("exit", (code) => {
-        console.log(`Python script exited with code ${code}`);
-    });
-});
-
-ipcMain.on("start-selection", async (event) => {
-    console.log(`start-selection`);
+ipcMain.on("crop-image", async (event) => {
+    console.log(`crop-image`);
     mainWindow.hide();
-    selectionWindow.show();
+    croppingWindow.show();
 });
 
 ipcMain.on("capture-selection", async (event, left, top, width, height) => {
     console.log(`capture-selection`);
-    selectionWindow.hide();
+    croppingWindow.hide();
     try {
         // Capture the screenshot
         screenshot().then(async (img) => {
@@ -382,7 +364,7 @@ ipcMain.on("capture-selection", async (event, left, top, width, height) => {
             mainWindow.webContents.send("image-captured", dataUrl);
 
             // Hide the selection window and show the main window
-            selectionWindow.hide();
+            croppingWindow.hide();
             mainWindow.show();
             console.log(`Screenshot saved`);
         });
@@ -391,31 +373,52 @@ ipcMain.on("capture-selection", async (event, left, top, width, height) => {
     }
 });
 
-// Listen for button-clicked events from renderer process - close-application
-ipcMain.on("close-application", (event) => {
-    console.log(`close-application`);
 
-    // Handle closing the application here
-    mainWindow.close(); // Try to close the window. This has the same effect as a user manually clicking the close button of the window
-    setReopenTimer(reminder_delay);
+/*--------Entry Submission Event Listeners--------*/
+
+ipcMain.on("submit-entry", async (event, content) => {
+    console.log(`submit-entry`);
+
+    const save_folder_path = path.join(setting_folder_path, "Daily Log.docx"); // Replace with settings value
+
+    const pythonProcess = spawn("python", [path.join(__dirname, "assets/scripts/", "word_doc.py")], {
+        stdio: ["pipe", "pipe", "pipe"],
+    });
+
+    jsonString = JSON.stringify({ content: content });
+
+    // Send JSON data to Python script through stdin
+    pythonProcess.stdin.write(jsonString);
+    pythonProcess.stdin.write("\n"); // Needed to separate the JSON data from the file path
+    pythonProcess.stdin.write(save_folder_path);
+    pythonProcess.stdin.end();
+
+    pythonProcess.stdout.on("data", (data) => {
+        console.log(`Python script output: ${data}`);
+    });
+
+    pythonProcess.stderr.on("data", (data) => {
+        console.error(`Python script error: ${data}`);
+    });
+
+    // Handle exit event
+    pythonProcess.on("exit", (code) => {
+        console.log(`Python script exited with code ${code}`);
+    });
 });
 
+/*--------Settings Event Listeners--------*/
 
+// Entry point for settings
 ipcMain.on("open-settings", (event) => {
     console.log(`open-settings`);
     settingsWindow.show();
 });
 
-ipcMain.on("close-settings", (event) => {
-    console.log(`close-settings`);
-    settingsWindow.hide();
-});
-
 // Function to handle loading settings
 async function handleLoadSettings() {
     console.log(`load-settings`);
-    console.log(`reminder_time_setting: ${reminder_time_setting}`);
-    return [reminder_time_setting, snooze_time_setting, start_time_setting, end_time_setting, folder_path_setting];
+    return [setting_reminder_time, setting_snooze_tim, setting_start_time, setting_end_time, setting_folder_path];
 }
 
 // Function to handle opening folder dialog (async)
@@ -427,7 +430,7 @@ async function handleFolderOpen() {
         console.log("Selected Folder:", selectedFolder);
         // Save folder path
         settings.set("folder_path_setting", selectedFolder);
-        folder_path_setting = selectedFolder;
+        setting_folder_path = selectedFolder;
         // Send selected folder path to main window
         return selectedFolder;
     }
@@ -443,10 +446,38 @@ ipcMain.on("apply-settings", (event, reminderTime, snoozeTime, startTime, endTim
     settings.setSync("end_time_setting", endTime);
 
     // Update settings values
-    reminder_time_setting = reminderTime;
-    snooze_time_setting = snoozeTime;
-    start_time_setting = startTime;
-    end_time_setting = endTime;
-
-    console.log(`reminder_time_setting: ${reminder_time_setting}`);
+    setting_reminder_time = reminderTime;
+    setting_snooze_tim = snoozeTime;
+    setting_start_time = startTime;
+    setting_end_time = endTime;
 });
+
+// Exit point for settings
+ipcMain.on("close-settings", (event) => {
+    console.log(`close-settings`);
+    settingsWindow.hide();
+});
+
+/*--------General Main Window Event Listeners--------*/
+
+ipcMain.on("skip-entry", (event) => {
+    console.log(`skip-entry`);
+    // Logic for skipping entry
+});
+
+ipcMain.on("snooze-entry", (event) => {
+    console.log(`snooze-entry`);
+    // Logic for snoozing entry
+});
+
+/*--------General Application Event Listeners--------*/
+
+// Listen for button-clicked events from renderer process - close-application
+ipcMain.on("close-application", (event) => {
+    console.log(`close-application`);
+
+    // Handle closing the application here
+    mainWindow.close(); // Try to close the window. This has the same effect as a user manually clicking the close button of the window
+    setReopenTimer(reminder_delay);
+});
+

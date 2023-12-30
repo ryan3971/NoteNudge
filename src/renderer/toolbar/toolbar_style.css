@@ -1,81 +1,81 @@
 /* styles/style.css */
-   body {
-      margin: 0px;
-      overflow: hidden;
-      padding: 25px;
-  } 
+body {
+    margin: 0px;
+    overflow: hidden;
+    padding: 25px;
+}
 
-  /* Over a period of 60 seconds, have the pulse run for 3 seconds and do nothing for 57 */
-  @keyframes pulse {
+/* Over a period of 60 seconds, have the pulse run for 3 seconds and do nothing for 57 */
+@keyframes pulse {
     0% {
-      background-color: #6DEFFF;
+        background-color: #6defff;
     }
     2.5% {
-      background-color: #F7AD19;
-      transform: scale(1.5); 
+        background-color: #f7ad19;
+        transform: scale(1.5);
     }
     5% {
-      background-color: #6DEFFF;
-      transform: scale(1);
+        background-color: #6defff;
+        transform: scale(1);
     }
-  }
+}
 
-  .button_container {
+.button-container {
     /* Dimensions */
     height: 100px;
     width: 100px;
     border-radius: 10px;
-    background-color: #6DEFFF;
+    background-color: #6defff;
     /* Grid Layout */
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
     /* Animation */
     animation: pulse;
-    animation-duration: 60s;                /* Run for 60 seconds; pulse for 3, wait for 57 */
-    animation-iteration-count: 2;           /* Run twice */
-    animation-timing-function: linear;  
-    animation-delay: 60s;                   /* Wait 60 seconds before starting */
-    }
+    animation-duration: 60s; /* Run for 60 seconds; pulse for 3, wait for 57 */
+    animation-iteration-count: 2; /* Run twice */
+    animation-timing-function: linear;
+    animation-delay: 60s; /* Wait 60 seconds before starting */
+}
 
-  button {
+button {
     background-color: transparent;
     color: #fff;
     cursor: pointer;
-  }
-  
-   button:hover {
+}
+
+button:hover {
     background-color: #9db9cf;
-  }
-  
-  #button1 {
+}
+
+#button-main {
     grid-column: 1;
     grid-row: 1;
     border-top-left-radius: 10px;
-    background-image: url('../../assets/images/description_FILL0_wght400_GRAD0_opsz40.png');
+    background-image: url("../../assets/images/description_FILL0_wght400_GRAD0_opsz40.png");
     background-position: center center;
-  }
-  
-  #button2 {
+}
+
+#button-skip {
     grid-column: 2;
     grid-row: 1;
-	  border-top-right-radius: 10px;
-    background-image: url('../../assets/images/skip_next_FILL0_wght400_GRAD0_opsz40.png');
+    border-top-right-radius: 10px;
+    background-image: url("../../assets/images/skip_next_FILL0_wght400_GRAD0_opsz40.png");
     background-position: center center;
-  }
-  
-  #button3 {
+}
+
+#button-snooze {
     grid-column: 1;
     grid-row: 2;
     border-bottom-left-radius: 10px;
-    background-image: url('../../assets/images/snooze_FILL0_wght400_GRAD0_opsz40.png');
+    background-image: url("../../assets/images/snooze_FILL0_wght400_GRAD0_opsz40.png");
     background-position: center center;
-  }
-  
-  #button4 {
+}
+
+#button-close {
     grid-column: 2;
     grid-row: 2;
     border-bottom-right-radius: 10px;
-    background-image: url('../../assets/images/power_settings_new_FILL0_wght400_GRAD0_opsz40.png');
+    background-image: url("../../assets/images/power_settings_new_FILL0_wght400_GRAD0_opsz40.png");
     background-position: center center;
-  }
+}
