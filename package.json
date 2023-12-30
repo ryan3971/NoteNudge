@@ -23,6 +23,7 @@
     "quill-image-resize": "^3.0.9",
     "quill-to-word": "^1.3.0",
     "screenshot-desktop": "^1.15.0",
-    "sharp": "^0.33.1"
+    "sharp": "^0.33.1",
+    "electron-settings": "^4.0.2"
   }
 }

@@ -102,7 +102,7 @@ button:hover {
     background-size: 25px 25px;
     background-position: center center;
 }
-#button-2 {
+#button-settings {
     background-image: url("../assets/images/settings_FILL1_wght700_GRAD200_opsz48.png");
     background-repeat: no-repeat;
     background-size: 25px 25px;
