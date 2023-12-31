@@ -7,6 +7,10 @@ const close_button = document.getElementById("button-close");
 
 const crop_image = document.getElementById("crop-image-button");
 
+const ENTRY_SUBMISSION_SUCCESS = 1;
+const ENTRY_SUBMISSION_FAILURE_FILE_OPEN = 2;
+const ENTRY_SUBMISSION_FAILURE_UNKNOWN = 3;
+
 Quill.register("modules/blotFormatter", QuillBlotFormatter.default);
 //Quill.register("modules/imageDrop", ImageDrop);
 
@@ -62,7 +66,26 @@ window.electronAPI.handleCroppedImage((image) => {
 submit_entry_button.addEventListener("click", async () => {
     console.log(`clicked`);
     const quillContent = quill.root.innerHTML;
+
+    // Handle submitting the entry here
     window.electronAPI.handleSubmitEntry(quillContent);
+});
+
+window.electronAPI.handleSubmitEntryStatus((entryStatus) => {
+	// Handle the submit status
+	if (entryStatus == ENTRY_SUBMISSION_SUCCESS) {
+		console.log(`Entry submitted successfully!`);
+	} else if (entryStatus == ENTRY_SUBMISSION_FAILURE_FILE_OPEN) {
+		console.log(`Entry submission failed: file open!`);
+	//	alert("Entry submission failed: file open!");
+	} else if (entryStatus == ENTRY_SUBMISSION_FAILURE_UNKNOWN) {
+		console.log(`Entry submission failed: unknown!`);
+	//	alert("Entry submission failed: unknown!");
+	}
+    
+    quill.focus();
+    quill.setSelection(quill_index + 1);
+
 });
 
 // Create a listener for the open-settings event

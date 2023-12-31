@@ -35,8 +35,11 @@ function applySettings() {
   startTime = document.getElementById("startTime").value || 0;
   endTime = document.getElementById("endTime").value || 0;
 
-  reminderTime = reminderHour * 60 + reminderMinute;
-  snoozeTime = snoozeHour * 60 + snoozeMinute;
+  console.log("Reminder Hour:", reminderHour);
+  console.log("Reminder Minute:", reminderMinute);
+  
+  reminderTime = parseInt(reminderHour) * 60 + parseInt(reminderMinute);
+  snoozeTime = parseInt(snoozeHour) * 60 + parseInt(snoozeMinute);
 
   if (!validateReminderTime(reminderTime)) return false;
   if (!validateSnoozeTime(snoozeTime, reminderTime)) return false;
@@ -98,6 +101,12 @@ function validateStartEndTime(startTime, endTime) {
   // Check if end time is greater than 0
   if (endTime <= 0) {
     alert("End time must be greater than 0.");
+    return false;
+  }
+
+  // Check if end time is greater than start time
+  if (endTime <= startTime) {
+    alert("End time must be greater than start time.");
     return false;
   }
 
