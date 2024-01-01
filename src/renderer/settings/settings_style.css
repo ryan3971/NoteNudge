@@ -4,16 +4,11 @@ body {
 }
 
 .container {
-	width: 300px;
+	width: 330px;
 	/* border-radius: 8px; */
-	margin-left: 15px;
-	margin-top: 30px;
+	padding-left: 30px;
+	padding-top: 30px;
 	overflow: hidden;
-}
-
-label {
-	display: block;
-	margin-bottom: 5px;
 }
 
 .title-bar {
@@ -38,7 +33,15 @@ label {
 input {
 	width: 100px;
 	padding: 8px;
+    background-color: none;
 	margin-bottom: 10px;
+   	border-radius: 3px;
+    border: 1px solid black;
+}
+
+input:focus {
+    outline: none;
+    border: 1px solid rgb(42, 100, 197);
 }
 
 button {
@@ -54,9 +57,10 @@ button {
 button:hover {
 	background-color: #0056b3;
 }
+
 #folderPath {
 	width: 230px;
-	overflow-y: auto;
+	overflow-x: auto;
 }
 
 /*https://www.w3schools.com/css/tryit.asp?filename=trycss_tooltip_transition*/
@@ -64,10 +68,15 @@ button:hover {
 	position: relative;
 	display: inline-block;
 }
+.tooltip {
+	position: relative;
+	display: inline-block;
+}
 
 .tooltip .tooltiptext {
 	visibility: hidden;
-	width: 200px;
+	width: 120px;
+    font-size: 12px;
 	background-color: black;
 	color: #fff;
 	text-align: center;

@@ -3,7 +3,7 @@
  *
  */
 
-const { app, BrowserWindow, Tray, Menu, ipcMain, screen } = require("electron/main");
+const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, screen } = require("electron/main");
 
 const path = require("node:path");
 
@@ -141,7 +141,7 @@ function createCroppingWindow() {
 
 function createSettingsWindow() {
 	settingsWindow = new BrowserWindow({
-		width: 350,
+		width: 380,
 		height: 450,
 		frame: false, // Creates a frameless window
 		titleBarStyle: "hidden", // Results in a hidden title bar and a full size content window
