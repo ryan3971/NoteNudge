@@ -88,7 +88,8 @@ function createToolbarWindow() {
 		show: false, // Don't show the window when it is created
 		opacity: 0, // Set the opacity to 0 so that the window is not visible when it is created
 		skipTaskbar: true, // Don't show the window in the taskbar
-		resizable: true, // Don't allow the window to be resized
+		resizable: false, // Don't allow the window to be resized
+		transparent: true, // Make the window transparent
 		webPreferences: {
 			preload: path.join(__dirname, "renderer/toolbar/toolbar_preload.js"),
 			//        nodeIntegration: true,
@@ -176,12 +177,16 @@ function createTrayBar() {
 				clearTimeout(reopenTimer); // Clear the timer
 
 				createMainWindow();
-				mainWindow.show();
 
-				createSettingsWindow();
-				createCroppingWindow();
+				mainWindow.once("ready-to-show", () => {
+					console.log(`main - ready-to-show`);
+					mainWindow.show();
 
-				trayBar.destroy();
+					createSettingsWindow();
+					createCroppingWindow();
+
+					trayBar.destroy();
+				});
 			},
 		},
 		{
@@ -280,7 +285,27 @@ function setReopenTimer(reopenDelay) {
 
 /*--------Initializer Functions--------*/
 
-function initializeApplication() {}
+function initializeApplication() {
+	// Initialize settings
+	initializeSettings();
+
+	// Check if this is the first time the application is being run by looking at the settings values
+	if (setting_reminder_time == undefined) {
+		// handle main window creation
+		createMainWindow();
+		createSettingsWindow();
+		createCroppingWindow();
+
+		mainWindow.once("ready-to-show", () => {
+			console.log(`main - ready-to-show`);
+			mainWindow.show();
+			// open settings window so the user is forced to set the settings before using the application
+			handleSettingsWindow(true);
+		});
+	} else {
+		initializeToolbar();
+	}
+}
 
 function initializeToolbar() {
 	createMainWindow();
@@ -381,10 +406,11 @@ function initializeSettings() {
 	setting_start_time = settings.getSync("start_time_setting");
 	setting_end_time = settings.getSync("end_time_setting");
 	setting_folder_path = settings.getSync("folder_path_setting");
+	//	setting_test = settings.getSync("test_setting");
 
 	// Create setting handlers
-	ipcMain.handle("open-folder-dialog", handleFolderOpen); // Handle folder open dialog
-	ipcMain.handle("load-settings", handleLoadSettings); // Handle loading settings
+	// ipcMain.handle("open-folder-dialog", handleFolderOpen); // Handle folder open dialog
+	// ipcMain.handle("load-settings", handleLoadSettings); // Handle loading settings
 
 	// Create entry submission handler
 }
@@ -394,8 +420,7 @@ function initializeSettings() {
 app.whenReady().then(() => {
 	console.log(`ready`);
 
-	initializeSettings();
-	initializeToolbar();
+	initializeApplication();
 
 	// called when any window is closing - override the default behavior of closing the application
 	app.on("before-quit", (event) => {
@@ -554,13 +579,13 @@ ipcMain.on("open-settings", (event) => {
 });
 
 // Function to handle loading settings
-async function handleLoadSettings() {
+ipcMain.handle("load-settings", async (event) => {
 	console.log(`load-settings`);
 	return [setting_reminder_time, setting_snooze_time, setting_start_time, setting_end_time, setting_folder_path];
-}
+});
 
 // Function to handle opening folder dialog (async)
-async function handleFolderOpen() {
+ipcMain.handle("open-folder-dialog", async (event) => {
 	// Open file system dialog
 	const { canceled, filePaths } = await dialog.showOpenDialog({ properties: ["openDirectory"] });
 	const selectedFolder = filePaths[0];
@@ -572,7 +597,7 @@ async function handleFolderOpen() {
 		// Send selected folder path to main window
 		return selectedFolder;
 	}
-}
+});
 
 // Function to update the settings
 ipcMain.on("apply-settings", (event, reminderTime, snoozeTime, startTime, endTime) => {

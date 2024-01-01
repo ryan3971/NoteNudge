@@ -38,7 +38,7 @@ body {
 
 .toolbar-button-container {
 	margin: 0px;
-    padding-left: 5px;
+	padding-left: 5px;
 	padding-right: 5px;
 }
 
@@ -47,23 +47,20 @@ body {
 }
 
 #crop-image-button {
-    background-color: transparent;
+	background-color: transparent;
 	border: none;
 	cursor: pointer;
 	-webkit-app-region: no-drag;
 
-    margin-bottom: 0px;
-    margin: 0px;
-    vertical-align: text-top;
+	margin-bottom: 0px;
+	margin: 0px;
+	vertical-align: text-top;
 
-    
- 
 	/* background-image: url("../assets/images/screenshot_region_FILL1_wght700_GRAD200_opsz48.png");
 	background-repeat: no-repeat;
 	background-size: 25px 25px;
 	background-position: center center; */
 }
-
 
 #editor {
 	height: 320px;
@@ -92,7 +89,6 @@ body {
 	-webkit-app-region: drag;
 }
 
-
 button {
 	background-color: transparent;
 	border: none;
@@ -101,12 +97,12 @@ button {
 }
 
 button:hover {
-    color: rgba(42, 100, 197, 1);
-}  
+	color: rgb(42, 100, 197);
+}
 
 .material-symbols-outlined {
-  	font-variation-settings: "FILL" 1, "wght" 700, "GRAD" 200, "opsz" 48;
-    font-size: 26px;
+	font-variation-settings: "FILL" 1, "wght" 700, "GRAD" 200, "opsz" 48;
+	font-size: 26px;
 }
 
 /* 
@@ -120,7 +116,7 @@ button:hover {
     background-repeat: no-repeat;
     background-size: 25px 25px;
     background-position: center center;
-} *//*
+} */ /*
 #button-skip {
 	background-image: url("../assets/images//skip_next_FILL1_wght700_GRAD200_opsz48.png");
 	background-repeat: no-repeat;
@@ -167,4 +163,24 @@ button:hover {
 .tooltip:hover .tooltiptext {
 	visibility: visible;
 	opacity: 1;
+}
+
+.loader {
+  	width: 24px;
+    height: 24px;
+    border: 5px solid #f6f6f6;
+    border-bottom-color: rgb(42, 100, 197);
+    border-radius: 50%;
+    display: none;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
 }
