@@ -1,0 +1,60 @@
+/* Style for the dialog container */
+    #dialog {
+        display: none; /* Hide the dialog by default */
+    }
+    .no-close .ui-dialog-titlebar-close {
+  		display: none;
+	}
+
+    /* Style for the dialog title bar */
+    .ui-dialog-titlebar {
+        background-color: #87ceeb;
+        color: #fff;
+    }
+
+    /* Style for the dialog title */
+    .ui-dialog-title {
+        font-size: 24px;
+		font-weight: bold;
+        color: black;
+        background-color: #87ceeb;
+    }
+
+    /* Style for the dialog text content */
+    .ui-dialog-content {
+        padding: 20px;
+        font-size: 1em;
+        background-color: #f0ffff
+    }
+    
+ 	.ui-dialog {
+        background-color: #f0ffff;
+        border: 2px solid #3498db; /* Set your desired border color */
+        border-radius: 10px; /* Set your desired border-radius */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Set your desired box-shadow */
+    }
+
+	.ui-dialog-buttonpane	{
+        background-color: #f0ffff;
+    }
+
+    /* Style for the dialog buttons */
+    .ui-dialog-buttonset button	{
+        background-color: rgb(53, 121, 246);
+        color: white;
+        border-radius: 5px;
+    	border: 1px solid black;
+    }
+    
+    .ui-dialog-buttonset button:hover	{
+        color: white;
+        background-color: #0056b3;
+    }
+    
+        /* Additional custom styles for the dialog */
+/*    .custom-dialog {
+        border: 2px solid #3498db;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        background-color: #f0ffff
+    }*/

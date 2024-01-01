@@ -17,13 +17,13 @@
     "datauri": "^4.1.0",
     "electron-settings": "^4.0.2",
     "file-saver": "^2.0.5",
+    "jquery": "^3.7.1",
     "quill": "^1.3.7",
     "quill-blot-formatter": "^1.0.5",
     "quill-image-drop-module": "^1.0.3",
     "quill-image-resize": "^3.0.9",
     "quill-to-word": "^1.3.0",
     "screenshot-desktop": "^1.15.0",
-    "sharp": "^0.33.1",
-    "electron-settings": "^4.0.2"
+    "sharp": "^0.33.1"
   }
 }
