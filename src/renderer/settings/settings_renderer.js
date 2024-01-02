@@ -1,6 +1,16 @@
-var alertDialog;
-//const alert_dialog_element = document.getElementById("alert_dialog");
 var alert_dialog_id = "#alert_dialog";
+
+const alert_error_title = "Error";
+const alert_warning_title = "Warning";
+
+const alert_reminder_time_text = "Reminder time must be greater than 0";
+const alert_snooze_time_text = "Snooze time must be greater than 0";
+const alert_snooze_greater_text = "Snooze time cannot be greater than reminder time";
+
+const alert_start_time_text = "Start time must be greater than 0";
+const alert_end_time_text = "End time must be greater than 0";
+
+const alert_end_time_greater_text = "End time must be greater than start time";
 
 // Function to load setting values
 document.addEventListener("DOMContentLoaded", async () => {
@@ -58,10 +68,7 @@ function validateReminderTime(reminderTime) {
 
 	// Check if reminder time is greater than 0
 	if (reminderTime <= 0) {
-      $(alert_dialog_id).dialog("option", "title", "HELLO");
-			$(alert_dialog_id).html("New Content");
-			$(alert_dialog_id).dialog("open");
-		// alert("Reminder time must be greater than 0.");
+		createAlertDialog(alert_warning_title, alert_reminder_time_text);
 		return false;
 	}
 
@@ -74,13 +81,13 @@ function validateSnoozeTime(snoozeTime, reminderTime) {
 
 	// Check if snooze time is greater than 0
 	if (snoozeTime <= 0) {
-		alert("Snooze time must be greater than 0.");
+		createAlertDialog(alert_warning_title, alert_snooze_time_text);
 		return false;
 	}
 
 	// Check if snooze time is greater than reminder time
 	if (snoozeTime > reminderTime) {
-		alert("Snooze time cannot be greater than reminder time.");
+		createAlertDialog(alert_warning_title, alert_snooze_greater_text);
 		return false;
 	}
 	return true;
@@ -93,19 +100,19 @@ function validateStartEndTime(startTime, endTime) {
 
 	// Check if start time is greater than 0
 	if (startTime <= 0) {
-		alert("Start time must be greater than 0.");
+		createAlertDialog(alert_warning_title, alert_start_time_text);
 		return false;
 	}
 
 	// Check if end time is greater than 0
 	if (endTime <= 0) {
-		alert("End time must be greater than 0.");
+		createAlertDialog(alert_warning_title, alert_end_time_text);
 		return false;
 	}
 
 	// Check if end time is greater than start time
 	if (endTime <= startTime) {
-		alert("End time must be greater than start time.");
+		createAlertDialog(alert_warning_title, alert_end_time_greater_text);
 		return false;
 	}
 
@@ -124,6 +131,13 @@ function closeSettings() {
 	console.log("Close Settings Window");
 	if (!applySettings()) return;
 	window.electronAPI.handleCloseApplication();
+}
+
+function createAlertDialog(alert_title, alert_content) {
+	$(alert_dialog_id).dialog("option", "title", alert_title);
+	$(alert_dialog_id).html(alert_content);
+	$(alert_dialog_id).dialog("open");
+	$(alert_dialog_id).dialog("widget").focus();		// required to fix bug where dialog button color is not changed until dialog is focused
 }
 
 $(function () {

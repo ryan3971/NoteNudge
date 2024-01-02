@@ -166,14 +166,14 @@ button:hover {
 }
 
 .loader {
-  	width: 24px;
-    height: 24px;
-    border: 5px solid #f6f6f6;
-    border-bottom-color: rgb(42, 100, 197);
-    border-radius: 50%;
-    display: none;
-    box-sizing: border-box;
-    animation: rotation 1s linear infinite;
+	width: 24px;
+	height: 24px;
+	border: 5px solid #f6f6f6;
+	border-bottom-color: rgb(42, 100, 197);
+	border-radius: 50%;
+	display: none;
+	box-sizing: border-box;
+	animation: rotation 1s linear infinite;
 }
 
 @keyframes rotation {
@@ -183,4 +183,38 @@ button:hover {
 	100% {
 		transform: rotate(360deg);
 	}
+}
+
+#entry_done {
+	position: fixed;
+	top: 100px;
+	left: 310px;
+	width: 100%;
+	height: 100%;
+	font-size: 200px;
+	opacity: 0.8;
+
+	background: transparent;
+	color: #028a0f;
+
+	display: none;
+}
+
+#entry_loader {
+	position: fixed;
+	top: 100px;
+	left: 315px;
+	width: 200px;
+	height: 200px;
+	opacity: 0.8;
+
+	background: transparent;
+
+	border: 25px solid #f6f6f6;
+	border-bottom-color: rgb(42, 100, 197);
+	border-radius: 50%;
+	box-sizing: border-box;
+	animation: rotation 1s linear infinite;
+
+	display: none;
 }

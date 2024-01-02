@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
 	// handleSubmitEntry: (entry) => ipcRenderer.send("submit-entry", entry),
 	handleSubmitEntry: (entry) => ipcRenderer.send("submit-entry", entry),
 	handleSubmitEntryStatus: (callback) => ipcRenderer.on("entry-status", (_event, status) => callback(status)),
+	handleEntrySubmitted: () => ipcRenderer.send("entry-submitted"),
 
 	handleOpenSettings: () => ipcRenderer.send("open-settings"),
 	handleSkipEntry: () => ipcRenderer.send("skip-entry"),

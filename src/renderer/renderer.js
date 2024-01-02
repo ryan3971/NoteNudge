@@ -7,8 +7,22 @@ const close_button = document.getElementById("button-close");
 
 const crop_image = document.getElementById("crop-image-button");
 
-const loader_element = document.getElementById("loaderID");
-const done_element = document.getElementById("doneID");
+// const loader_element = document.getElementById("loaderID");
+// const done_element = document.getElementById("doneID");
+
+const entry_loader_element = document.getElementById("entry_loader");
+const entry_done_element = document.getElementById("entry_done");
+
+const editor_element = document.getElementById("editor");
+
+
+var alert_dialog_id = "#alert_dialog";
+
+const alert_error_title = "Error";
+const alert_warning_title = "Warning";
+
+const alert_entry_file_open_text = "Entry submission failed: file open!";
+const alert_entry_unknown_text = "Entry submission failed: unknown!";
 
 const ENTRY_SUBMISSION_SUCCESS = 1;
 const ENTRY_SUBMISSION_FAILURE_FILE_OPEN = 2;
@@ -70,30 +84,39 @@ submit_entry_button.addEventListener("click", async () => {
 	console.log(`clicked`);
 
 	// Display loading spinner
-	done_element.style.display = "none";
-	loader_element.style.display = "inline-block";
+	entry_loader_element.style.display = "inline-block";
 
+	// Get the quill content
 	const quillContent = quill.root.innerHTML;
 
-	// Handle submitting the entry here
+	// Send the quill content to the main process
 	window.electronAPI.handleSubmitEntry(quillContent);
 });
 
 window.electronAPI.handleSubmitEntryStatus((entryStatus) => {
+	
+	// Hide the loading spinner
+	entry_loader_element.style.display = "none";
+
 	// Handle the submit status
 	if (entryStatus == ENTRY_SUBMISSION_SUCCESS) {
 		console.log(`Entry submitted successfully!`);
-	} else if (entryStatus == ENTRY_SUBMISSION_FAILURE_FILE_OPEN) {
-		console.log(`Entry submission failed: file open!`);
-		//	alert("Entry submission failed: file open!");
-	} else if (entryStatus == ENTRY_SUBMISSION_FAILURE_UNKNOWN) {
-		console.log(`Entry submission failed: unknown!`);
-		//	alert("Entry submission failed: unknown!");
-	}
 
-    done_element.style.color = "#028A0F";
-	done_element.style.display = "inline-block";
-	loader_element.style.display = "none";
+		// Display done icon
+		entry_done_element.style.display = "inline-block";
+
+		// send a message to the main process to close the window
+		window.electronAPI.handleEntrySubmitted();
+
+	} else {
+		if (entryStatus == ENTRY_SUBMISSION_FAILURE_FILE_OPEN) {
+			console.log(`Entry submission failed: file open!`);
+			createAlertDialog(alert_error_title, alert_entry_file_open_text);
+		} else if (entryStatus == ENTRY_SUBMISSION_FAILURE_UNKNOWN) {
+			console.log(`Entry submission failed: unknown!`);
+			createAlertDialog(alert_error_title, alert_entry_unknown_text);
+		}
+	}
 });
 
 // Create a listener for the open-settings event
@@ -118,4 +141,26 @@ close_button.addEventListener("click", () => {
 
 	// Handle closing the application here
 	window.electronAPI.handleCloseApplication();
+});
+
+function createAlertDialog(alert_title, alert_content) {
+	$(alert_dialog_id).dialog("option", "title", alert_title);
+	$(alert_dialog_id).html(alert_content);
+	$(alert_dialog_id).dialog("open");
+	$(alert_dialog_id).dialog("widget").focus(); // required to fix bug where dialog button color is not changed until dialog is focused
+}
+
+$(function () {
+	// Dialog initialization
+	$(alert_dialog_id).dialog({
+		autoOpen: false, // Dialog won't open on page load
+		resizable: false, // Make it not resizable
+		modal: true, // Make it a modal dialog
+		buttons: {
+			Ok: function () {
+				$(this).dialog("close");
+			},
+		},
+		dialogClass: "no-close", // Custom class for additional styling
+	});
 });

@@ -108,10 +108,10 @@ function createToolbarWindow() {
 		fadeInWindow(toolbarWindow);
 	});
 
-	toolbarWindow.on("closed", () => {
-		//    fadeOutWindow(toolbarWindow);
-		toolbarWindow = null;
-	});
+	// toolbarWindow.on("closed", () => {
+	// 	//    fadeOutWindow(toolbarWindow);
+	// 	//toolbarWindow = null;
+	// });
 }
 
 function createCroppingWindow() {
@@ -126,13 +126,13 @@ function createCroppingWindow() {
 		show: false, // Don't show the window when it is created
 		webPreferences: {
 			//        nodeIntegration: true,
-			preload: path.join(__dirname, "renderer/selection/selectionPreload.js"),
+			preload: path.join(__dirname, "renderer/selection/selection_preload.js"),
 		},
 	});
 
 	croppingWindow.setIgnoreMouseEvents(false); // Set to true to ignore mouse events when the window is clicked
 
-	croppingWindow.loadFile(path.join(__dirname, "renderer/selection/selectionWindow.html"));
+	croppingWindow.loadFile(path.join(__dirname, "renderer/selection/selection-window.html"));
 
 	croppingWindow.on("closed", function () {
 		croppingWindow = null;
@@ -320,7 +320,9 @@ function initializeToolbar() {
 }
 
 function initializeMainWindow() {
-	toolbarWindow.close();
+
+	// Fade out the toolbar window (closing is handled in the fadeOutWindow function)
+	fadeOutWindow(toolbarWindow);
 
 	mainWindow.show();
 
@@ -340,7 +342,10 @@ function closeFromToolbarWindow(reopenDelay) {
 }
 
 function closeFromMainWindow(reopenDelay) {
-	mainWindow.close();
+
+	// Fade out the main window (closing is handled in the fadeOutWindow function)
+	fadeOutWindow(mainWindow);
+
 	settingsWindow.close();
 	croppingWindow.close();
 
@@ -387,11 +392,11 @@ function fadeOutWindow(window) {
 	let opacity = 1;
 	interval = setInterval(() => {
 		if (opacity > 0) {
-			opacity -= 0.05; // Adjust the increment to control the fade-in speed
+			opacity -= 0.20; // Adjust the increment to control the fade-in speed
 			window.setOpacity(opacity);
 		} else {
 			clearInterval(interval);
-			window = null;
+			window.close();
 		}
 	}, 50); // Adjust the interval to control the fade-in smoothness
 }
@@ -560,14 +565,6 @@ ipcMain.on("submit-entry", async (event, content) => {
 			mainWindow.webContents.send("entry-status", ENTRY_SUBMISSION_SUCCESS);
 		}
 	});
-
-	// Include logic for handling the python script output and error
-
-	// Close the main window
-	// closeFromMainWindow(setting_reminder_time);
-
-	// console.log(`Entry submitted!`);
-	// return ENTRY_SUBMISSION_SUCCESS;
 });
 
 /*--------Settings Event Listeners--------*/
@@ -633,6 +630,11 @@ ipcMain.on("snooze-entry", (event) => {
 	closeFromMainWindow(setting_snooze_time);
 });
 
+ipcMain.on("entry-submitted", (event) => {
+	console.log(`entry-submitted`);
+	closeFromMainWindow(setting_reminder_time);
+});
+
 /*--------General Application Event Listeners--------*/
 
 // Listen for button-clicked events from renderer process - close-application
@@ -640,61 +642,3 @@ ipcMain.on("close-application", (event) => {
 	console.log(`close-application`);
 	app.exit();
 });
-
-// ipcMain.handle("submit-entry", async (event, content) => {
-// 	console.log(`submit-entry`);
-// 	console.log(`content: ${content}`);
-// 	const save_folder_path = path.join(setting_folder_path, "Daily Log.docx"); // Replace with settings value
-// 	console.log(`save_folder_path: ${save_folder_path}`);
-
-// 	// // Create a child process to run the python script
-// 	// const pythonProcess = spawn("python", [path.join(__dirname, "assets/scripts/", "word_doc.py")], {
-// 	// 	stdio: ["pipe", "pipe", "pipe"],
-// 	// });
-
-// 	// Use spawn to run the Python script
-// 	// path_script = path.join(process.resourcesPath, "scripts/dist/word_doc/word_doc.exe");
-
-// 	// Use spawn to run the Python script
-// 	path_script = path.join(__dirname, "assets/scripts/dist/word_doc/word_doc.exe");
-
-// 	const pythonProcess = await spawn(path_script, {
-// 		stdio: ["pipe", "pipe", "pipe"],
-// 	});
-
-// 	// Convert the content to JSON
-// 	jsonString = JSON.stringify({ content: content });
-
-// 	// Send JSON data to Python script through stdin
-// 	pythonProcess.stdin.write(jsonString);
-// 	pythonProcess.stdin.write("\n"); // Needed to separate the JSON data from the file path
-// 	pythonProcess.stdin.write(save_folder_path);
-// 	pythonProcess.stdin.end();
-
-// 	// Handle stdout (output) and stderr (error) events from the python script
-// 	pythonProcess.stdout.on("data", (data) => {
-// 		console.log(`Python script output: ${data}`);
-// 	});
-
-// 	pythonProcess.stderr.on("data", (data) => {
-// 		console.error(`Python script error: ${data}`);
-
-// 		// Handle error here - specifically, if the file is open
-// 		if (data.includes("Permission denied")) {
-// 			console.error("File is open");
-// 			return ENTRY_SUBMISSION_FAILURE_FILE_OPEN;
-// 		} else {
-// 			console.error("Unknown error");
-// 			return ENTRY_SUBMISSION_FAILURE_UNKNOWN;
-// 		}
-// 	});
-
-// 	// Handle exit event from the python script
-// 	pythonProcess.on("exit", (code) => {
-// 		console.log(`Python script exited with code ${code}`);
-// 		if (code == 0) {
-// 			console.log(`Entry submitted!`);
-// 			return ENTRY_SUBMISSION_SUCCESS;
-// 		}
-// 	});
-// });
