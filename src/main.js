@@ -61,8 +61,6 @@ function createMainWindow() {
 		//	skipTaskbar: true, // Don't show the window in the taskbar
 		webPreferences: {
 			preload: path.join(__dirname, "renderer/preload.js"),
-			//        nodeIntegration: true,
-			//        contextIsolation: true,
 		},
 	});
 
@@ -92,7 +90,6 @@ function createToolbarWindow() {
 		transparent: true, // Make the window transparent
 		webPreferences: {
 			preload: path.join(__dirname, "renderer/toolbar/toolbar_preload.js"),
-			//        nodeIntegration: true,
 		},
 	});
 
@@ -125,14 +122,13 @@ function createCroppingWindow() {
 		alwaysOnTop: true, // Make the window stay on top of all other windows
 		show: false, // Don't show the window when it is created
 		webPreferences: {
-			//        nodeIntegration: true,
-			preload: path.join(__dirname, "renderer/selection/selection_preload.js"),
+			preload: path.join(__dirname, "renderer/crop/crop_preload.js"),
 		},
 	});
 
 	croppingWindow.setIgnoreMouseEvents(false); // Set to true to ignore mouse events when the window is clicked
 
-	croppingWindow.loadFile(path.join(__dirname, "renderer/selection/selection-window.html"));
+	croppingWindow.loadFile(path.join(__dirname, "renderer/crop/crop-window.html"));
 
 	croppingWindow.on("closed", function () {
 		croppingWindow = null;
@@ -333,7 +329,8 @@ function initializeMainWindow() {
 /*--------Close Functions--------*/
 
 function closeFromToolbarWindow(reopenDelay) {
-	toolbarWindow.close();
+	fadeOutWindow(toolbarWindow);
+
 	mainWindow.close();
 
 	createTrayBar();
