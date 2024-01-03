@@ -6,10 +6,6 @@ from htmldocx import HtmlToDocx
 from docx.shared import Pt
 from docx.oxml.ns import qn
 
-import os
-import io
-import base64
-
 def append_text_to_word_document(text, document_path):
     # Get the current date and format it as "Week of [date]"
     # Get the date for the start if the week

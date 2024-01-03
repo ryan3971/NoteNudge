@@ -3,20 +3,18 @@
  *
  */
 
-const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, screen } = require("electron/main");
+const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, screen, nativeImage } = require("electron/main");
+if (require("electron-squirrel-startup")) app.quit(); // Required by electron-forge
 
 const path = require("node:path");
 
 const { spawn } = require("child_process");
 
 const screenshot = require("screenshot-desktop");
-const sharp = require("sharp");
 
 const DatauriParser = require("datauri/parser");
 
 const settings = require("electron-settings");
-
-const fs = require("fs");
 
 let mainWindow;
 let toolbarWindow;
@@ -316,7 +314,6 @@ function initializeToolbar() {
 }
 
 function initializeMainWindow() {
-
 	// Fade out the toolbar window (closing is handled in the fadeOutWindow function)
 	fadeOutWindow(toolbarWindow);
 
@@ -339,7 +336,6 @@ function closeFromToolbarWindow(reopenDelay) {
 }
 
 function closeFromMainWindow(reopenDelay) {
-
 	// Fade out the main window (closing is handled in the fadeOutWindow function)
 	fadeOutWindow(mainWindow);
 
@@ -352,7 +348,6 @@ function closeFromMainWindow(reopenDelay) {
 }
 
 /*--------Show/hide Functions--------*/
-
 function handleCroppingWindow(showCroppingWindow) {
 	if (showCroppingWindow) {
 		mainWindow.hide();
@@ -389,7 +384,7 @@ function fadeOutWindow(window) {
 	let opacity = 1;
 	interval = setInterval(() => {
 		if (opacity > 0) {
-			opacity -= 0.20; // Adjust the increment to control the fade-in speed
+			opacity -= 0.2; // Adjust the increment to control the fade-in speed
 			window.setOpacity(opacity);
 		} else {
 			clearInterval(interval);
@@ -410,11 +405,6 @@ function initializeSettings() {
 	setting_folder_path = settings.getSync("folder_path_setting");
 	//	setting_test = settings.getSync("test_setting");
 
-	// Create setting handlers
-	// ipcMain.handle("open-folder-dialog", handleFolderOpen); // Handle folder open dialog
-	// ipcMain.handle("load-settings", handleLoadSettings); // Handle loading settings
-
-	// Create entry submission handler
 }
 
 // Called when the application is ready to start. Anything nested here will be able to run when the application is ready to start.
@@ -468,33 +458,41 @@ ipcMain.on("crop-image", async (event) => {
 ipcMain.on("capture-selection", async (event, left, top, width, height) => {
 	console.log(`capture-selection`);
 	croppingWindow.hide();
+
 	try {
 		// Capture the screenshot
 		screenshot().then(async (img) => {
-			// get the dimensions of the screen and the image, then calculate the crop dimensions
-			// Not sure how good of a solution this is - double check (and take rect border into account)
+			const image = nativeImage.createFromBuffer(img);
+
+			// Get the dimensions of the image
+			const imgWidth = image.getSize().width;
+			const imgHeight = image.getSize().height;
+
+			// Get the dimensions of the screen
 			const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().bounds;
-			const { width: imgWidth, height: imgHeight } = await sharp(img).metadata();
 
-			scaledLeft = Math.round((left / screenWidth) * imgWidth);
-			scaledTop = Math.round((top / screenHeight) * imgHeight);
-			scaledWidth = Math.round((width / screenWidth) * imgWidth);
-			scaledHeight = Math.round((height / screenHeight) * imgHeight);
+			// Calculate the scale factor (these should be the same but just in case they aren't we will calculate both)
+			scaleWidth = parseFloat(imgWidth / screenWidth);
+			scaleHeight = parseFloat(imgHeight / screenHeight);
 
-			// Crop the image and convert to png format (png format is necessary for the saving to docx)
-			const croppedImgBuffer = await sharp(img)
-				.png()
-				.extract({
-					left: scaledLeft,
-					top: scaledTop,
-					width: scaledWidth,
-					height: scaledHeight,
-				})
-				.toBuffer();
+			// Scale the selection dimensions
+			left = Math.round(left * scaleWidth);
+			top = Math.round(top * scaleHeight);
+			width = Math.round(width * scaleWidth);
+			height = Math.round(height * scaleHeight);
 
-			// Convert the image buffer to a data url
+			// Crop the image
+			var croppedImg = image.crop({ x: left, y: top, width: width, height: height });
+
+			// Resize the image to the scale factor (If only the height or the width are specified then the current aspect ratio will be preserved in the resized image)
+			croppedImg = croppedImg.resize({ width: Math.round(width / scaleWidth), quality: "best" });
+
+			// Convert to png format (png format is necessary for the saving to docx)
+			croppedImg = croppedImg.toPNG();
+
+			// Convert the image buffer to a data url - this is necessary to send the image to the renderer process
 			const parser = new DatauriParser();
-			const dataUrl = parser.format(".png", croppedImgBuffer).content;
+			const dataUrl = parser.format(".png", croppedImg).content;
 
 			mainWindow.webContents.send("image-captured", dataUrl);
 
@@ -521,7 +519,8 @@ ipcMain.on("submit-entry", async (event, content) => {
 	// 	stdio: ["pipe", "pipe", "pipe"],
 	// });
 
-	path_script = path.join(__dirname, "assets/scripts/dist/word_doc/word_doc.exe");
+	// path_script = path.join(__dirname, "assets/scripts/dist/word_doc/word_doc.exe");
+	path_script = path.join(process.resourcesPath, "scripts/dist/word_doc/word_doc.exe");
 
 	const pythonProcess = await spawn(path_script, {
 		stdio: ["pipe", "pipe", "pipe"],
