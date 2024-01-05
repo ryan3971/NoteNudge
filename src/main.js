@@ -5,15 +5,14 @@
 
 const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, screen, nativeImage } = require("electron/main");
 if (require("electron-squirrel-startup")) app.quit(); // Required by electron-forge
+Menu.setApplicationMenu(null);	// Remove the default menu bar - will speed up the application on startup
+
+// require("v8-compile-cache");
 
 const path = require("node:path");
-
 const { spawn } = require("child_process");
-
 const screenshot = require("screenshot-desktop");
-
 const DatauriParser = require("datauri/parser");
-
 const settings = require("electron-settings");
 
 let mainWindow;
@@ -158,7 +157,7 @@ function createSettingsWindow() {
 
 // Function to create the traybar window
 function createTrayBar() {
-	const trayIcon = path.join(__dirname, "assets/images/icon.png");
+	const trayIcon = path.join(__dirname, "assets/icons/icon.png");
 	trayBar = new Tray(trayIcon);
 
 	const contextMenu = Menu.buildFromTemplate([
@@ -520,7 +519,7 @@ ipcMain.on("submit-entry", async (event, content) => {
 	// });
 
 	// path_script = path.join(__dirname, "assets/scripts/dist/word_doc/word_doc.exe");
-	path_script = path.join(process.resourcesPath, "scripts/dist/word_doc/word_doc.exe");
+	path_script = path.join(process.resourcesPath, "dist/word_doc/word_doc.exe");
 
 	const pythonProcess = await spawn(path_script, {
 		stdio: ["pipe", "pipe", "pipe"],
