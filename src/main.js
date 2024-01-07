@@ -630,6 +630,14 @@ ipcMain.on("entry-submitted", (event) => {
 	closeFromMainWindow(setting_reminder_time);
 });
 
+ipcMain.on("open-document", (event) => {
+	console.log(`open-document`);
+	// Open the word document
+	const save_folder_path = path.join(setting_folder_path, "Daily Log.docx"); // Replace with settings value
+	spawn("explorer", [save_folder_path]);
+
+});
+
 /*--------General Application Event Listeners--------*/
 
 // Listen for button-clicked events from renderer process - close-application

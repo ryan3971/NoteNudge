@@ -1,10 +1,10 @@
 // // renderer.js
 const submit_entry_button = document.getElementById("button-submit-entry");
+const document_button = document.getElementById("button-doc");
 const settings_button = document.getElementById("button-settings");
 const skip_button = document.getElementById("button-skip");
-const snooze_button = document.getElementById("button-snooze");
+const snooze_button = document.getElementById("button-snooze")
 const close_button = document.getElementById("button-close");
-
 const crop_image = document.getElementById("crop-image-button");
 
 // const loader_element = document.getElementById("loaderID");
@@ -119,6 +119,14 @@ window.electronAPI.handleSubmitEntryStatus((entryStatus) => {
 	}
 });
 
+// Create a listener for the close-application event
+document_button.addEventListener("click", () => {
+	console.log(`Open Document Button clicked!`);
+
+	// Handle closing the application here
+	window.electronAPI.handleOpenDocument();
+});
+
 // Create a listener for the open-settings event
 settings_button.addEventListener("click", () => {
 	console.log(`Settings button clicked!`);
@@ -137,7 +145,7 @@ snooze_button.addEventListener("click", () => {
 
 // Create a listener for the close-application event
 close_button.addEventListener("click", () => {
-	console.log(`Button clicked!`);
+	console.log(`Close Application Button clicked!`);
 
 	// Handle closing the application here
 	window.electronAPI.handleCloseApplication();
