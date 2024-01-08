@@ -61,16 +61,22 @@
             <span class="tooltiptext">Location of the generated word doc</span>
         </div>
         <input type="text" id="folderPath" readonly>
-        <button onclick="openFolderDialog()">Select Folder</button>
+        
+        <div class="grid-container">
+            <!--Close Settings Button-->
+            <button onclick="openFolderDialog()">Select Folder</button>
+            <!--Close Settings Button-->
+            <button onclick="openAdvancedSettings()">Advanced...</button>
+        </div>
     </div>
 
     <div class="container">
-        <div class="grid-container">
+        <!-- <div class="grid-container"> -->
             <!--Close Settings Button-->
-            <button id="apply-settings" onclick="applySettings()">Apply Settings</button>
+            <!-- <button id="apply-settings" onclick="applySettings()">Apply Settings</button> -->
             <!--Close Settings Button-->
             <button id="close-settings" onclick="closeSettings()">Close Settings</button>
-        </div>
+        <!-- </div> -->
     </div>
 
     <div id="alert_dialog"></div>

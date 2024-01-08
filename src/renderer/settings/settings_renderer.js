@@ -127,6 +127,11 @@ async function openFolderDialog() {
 	document.getElementById("folderPath").value = folderPath;
 }
 
+function openAdvancedSettings() {
+	console.log("Open Advanced Settings Window");
+	window.electronAPI.handleOpenAdvancedSettings();
+}
+
 function closeSettings() {
 	console.log("Close Settings Window");
 	if (!applySettings()) return;

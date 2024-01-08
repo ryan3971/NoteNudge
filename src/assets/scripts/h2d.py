@@ -255,22 +255,35 @@ class HtmlToDocx(HTMLParser):
         string_dict = dict([x.split(':') for x in new_string if ':' in x])
         return string_dict
 
-    def handle_li(self):
+    def handle_li(self, current_attrs):
         # check list stack to determine style and depth
         list_depth = len(self.tags['list'])
         if list_depth:
             list_type = self.tags['list'][-1]
         else:
             list_type = 'ul' # assign unordered if no tag
-
+            
+        # custom code
+        # check attribute class for the q1-indent-* class, add indent to match the quill value
+        indent_num = None
+        if 'class' in current_attrs:
+            if current_attrs['class'].startswith('ql-indent-'):
+                indent_num = current_attrs['class'].split('-')[-1]
+                
+        list_num = ""
+        if indent_num:
+            list_depth = int(indent_num) + 1
+            list_num = " " + (str(list_depth))
+                
         if list_type == 'ol':
-            list_style = styles['LIST_NUMBER']
+            list_style = styles['LIST_NUMBER'] + list_num
         else:
-            list_style = styles['LIST_BULLET']
+            list_style = styles['LIST_BULLET'] + list_num
 
         self.paragraph = self.doc.add_paragraph(style=list_style)            
-        self.paragraph.paragraph_format.left_indent = Inches(min(list_depth * LIST_INDENT, MAX_INDENT))
-        self.paragraph.paragraph_format.line_spacing = 1
+        # self.paragraph.paragraph_format.left_indent = Inches(min(list_depth * LIST_INDENT, MAX_INDENT))
+        self.paragraph.paragraph_format.space_after = Pt(0)
+        # self.paragraph.paragraph_format.line_spacing = 1
 
     def add_image_to_cell(self, cell, image):
         # python-docx doesn't have method yet for adding images to table cells. For now we use this
@@ -421,6 +434,13 @@ class HtmlToDocx(HTMLParser):
 
         current_attrs = dict(attrs)
 
+        # custom script
+        # check attribute class for the q1-indent-* class
+        # if 'class' in current_attrs:
+        #     if current_attrs['class'].startswith('ql-indent-'):
+        #         # get the last tag in the list and add it again (best way to add the correct indent type)
+        #         self.tags['list'].append(self.tags['list'][-1])
+
         if tag == 'span':
             self.tags['span'].append(current_attrs)
             return
@@ -436,7 +456,7 @@ class HtmlToDocx(HTMLParser):
             self.paragraph = self.doc.add_paragraph()
 
         elif tag == 'li':
-            self.handle_li()
+            self.handle_li(current_attrs)
 
         elif tag == "hr":
 

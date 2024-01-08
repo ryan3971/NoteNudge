@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./advanced_settings_style.css">
+
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <link rel="stylesheet" href="../alert/alert_style.css">
+</head>
+
+<body>
+
+    <div class="title-bar" id="drag-region">
+        <div class="title">Advanced Settings</div>
+    </div>
+
+    <div class="day-container">
+        <input type="checkbox" class="checkbox" id="sundayCheckbox">
+        <label for="sundayCheckbox" class="day-text">Sunday</label>
+        <input type="time" class="time-input" placeholder="Start Time">
+        <input type="time" class="time-input" placeholder="End Time">
+    </div>
+
+    <div class="day-container">
+        <input type="checkbox" class="checkbox" id="sundayCheckbox">
+        <label for="sundayCheckbox" class="day-text">Monday</label>
+        <input type="time" class="time-input" placeholder="Start Time">
+        <input type="time" class="time-input" placeholder="End Time">
+    </div>
+
+    <div class="day-container">
+        <input type="checkbox" class="checkbox" id="sundayCheckbox">
+        <label for="sundayCheckbox" class="day-text">Tuesday</label>
+        <input type="time" class="time-input" placeholder="Start Time">
+        <input type="time" class="time-input" placeholder="End Time">
+    </div>
+
+    <div class="day-container">
+        <input type="checkbox" class="checkbox" id="sundayCheckbox">
+        <label for="sundayCheckbox" class="day-text">Wednesday</label>
+        <input type="time" class="time-input" placeholder="Start Time">
+        <input type="time" class="time-input" placeholder="End Time">
+    </div>
+
+    <button id="close-advanced-settings" onclick="closeAdvancedSettings()">Close</button>
+
+
+    <div id="alert_dialog"></div>
+
+    <script src="./advanced_settings_renderer.js"></script>
+
+</body>
+
+</html>

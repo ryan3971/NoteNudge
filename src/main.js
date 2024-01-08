@@ -43,6 +43,7 @@ let setting_snooze_time;
 let setting_start_time;
 let setting_end_time;
 let setting_folder_path;
+let setting_days;
 
 /*--------Window Creation Functions--------*/
 
@@ -58,6 +59,7 @@ function createMainWindow() {
 		//	skipTaskbar: true, // Don't show the window in the taskbar
 		webPreferences: {
 			preload: path.join(__dirname, "renderer/preload.js"),
+			webContents: true,	// Allows the webContents to be accessed from the renderer process (so I can use the developer console)
 		},
 	});
 
@@ -85,6 +87,7 @@ function createToolbarWindow() {
 		skipTaskbar: true, // Don't show the window in the taskbar
 		resizable: false, // Don't allow the window to be resized
 		transparent: true, // Make the window transparent
+		focus: false, // Don't focus the window when it is created (can disrupt users work if it focuses while they are typing)
 		webPreferences: {
 			preload: path.join(__dirname, "renderer/toolbar/toolbar_preload.js"),
 		},
@@ -93,6 +96,7 @@ function createToolbarWindow() {
 	// Set the window position
 	const [x, y] = setWindowPosition(toolbarWindow);
 	toolbarWindow.setPosition(x, y);
+	toolbarWindow.setIgnoreMouseEvents(true); // Don't allow the window to be clicked on (until after it is in view)
 
 	toolbarWindow.loadFile(path.join(__dirname, "renderer/toolbar/toolbar-window.html"));
 
@@ -155,6 +159,31 @@ function createSettingsWindow() {
 	});
 }
 
+function createAdvancedSettingsWindow() {
+	advancedSettingsWindow = new BrowserWindow({
+		width: 420,
+		height: 250,
+		frame: false, // Creates a frameless window
+		titleBarStyle: "hidden", // Results in a hidden title bar and a full size content window
+		// parent: settingsWindow, // Makes the settings window a child of the main window
+		modal: true, // Have it so nothing else can be selected until the settings window is closed
+		center: true, // Center the window
+		show: false, // Don't show the window when it is created
+		resizable: true, // Don't allow the window to be resized
+		webPreferences: {
+			preload: path.join(__dirname, "renderer/advanced_settings/advanced_settings_preload.js"),
+			webContents: true, // Allows the webContents to be accessed from the renderer process (so I can use the developer console)
+		},
+	});
+
+	advancedSettingsWindow.loadFile(path.join(__dirname, "renderer/advanced_settings/advanced-settings-window.html"));
+	advancedSettingsWindow.webContents.openDevTools();
+
+	advancedSettingsWindow.on("closed", function () {
+		advancedSettingsWindow = null;
+	});
+}
+
 // Function to create the traybar window
 function createTrayBar() {
 	const trayIcon = path.join(__dirname, "assets/icons/icon.png");
@@ -180,6 +209,29 @@ function createTrayBar() {
 
 					trayBar.destroy();
 				});
+			},
+		},
+		{
+			label: "Open Document",
+			click: () => {
+				console.log(`Open Document clicked!`);
+				// Open the word document
+				openDocument();
+			},
+		},
+
+		{
+			label: "Snooze for Day",
+			click: () => {
+				console.log(`Tray Day Snooze clicked!`);
+				// closeFromToolbarWindow(setting_snooze_time);
+			},
+		},
+		{
+			label: "Temporary Run Time",
+			click: () => {
+				console.log(`Temporary Runtime clicked!`);
+				// closeFromToolbarWindow(setting_snooze_time);
 			},
 		},
 		{
@@ -314,8 +366,8 @@ function initializeToolbar() {
 
 function initializeMainWindow() {
 	// Fade out the toolbar window (closing is handled in the fadeOutWindow function)
-	fadeOutWindow(toolbarWindow);
-
+	// fadeOutWindow(toolbarWindow);
+	toolbarWindow.close()
 	mainWindow.show();
 
 	createSettingsWindow();
@@ -325,8 +377,8 @@ function initializeMainWindow() {
 /*--------Close Functions--------*/
 
 function closeFromToolbarWindow(reopenDelay) {
-	fadeOutWindow(toolbarWindow);
-
+	// fadeOutWindow(toolbarWindow);
+	toolbarWindow.close
 	mainWindow.close();
 
 	createTrayBar();
@@ -336,8 +388,8 @@ function closeFromToolbarWindow(reopenDelay) {
 
 function closeFromMainWindow(reopenDelay) {
 	// Fade out the main window (closing is handled in the fadeOutWindow function)
-	fadeOutWindow(mainWindow);
-
+	// fadeOutWindow(mainWindow);
+	mainWindow.close()
 	settingsWindow.close();
 	croppingWindow.close();
 
@@ -360,8 +412,19 @@ function handleCroppingWindow(showCroppingWindow) {
 function handleSettingsWindow(showSettingsWindow) {
 	if (showSettingsWindow) {
 		settingsWindow.show();
+		// Load the advanced settings window just in case
+		createAdvancedSettingsWindow();
 	} else {
 		settingsWindow.hide();
+		advancedSettingsWindow.close();
+	}
+}
+
+function handleAdvancedSettingsWindow(showAdvancedSettingsWindow) {
+	if (showAdvancedSettingsWindow) {
+		advancedSettingsWindow.show()
+	} else {
+		advancedSettingsWindow.hide()
 	}
 }
 
@@ -375,22 +438,24 @@ function fadeInWindow(window) {
 			window.setOpacity(opacity);
 		} else {
 			clearInterval(interval);
+			// set the window to be clickable
+			window.setIgnoreMouseEvents(false);
 		}
 	}, 50); // Adjust the interval to control the fade-in smoothness
 }
 
-function fadeOutWindow(window) {
-	let opacity = 1;
-	interval = setInterval(() => {
-		if (opacity > 0) {
-			opacity -= 0.2; // Adjust the increment to control the fade-in speed
-			window.setOpacity(opacity);
-		} else {
-			clearInterval(interval);
-			window.close();
-		}
-	}, 50); // Adjust the interval to control the fade-in smoothness
-}
+// function fadeOutWindow(window) {
+// 	let opacity = 1;
+// 	interval = setInterval(() => {
+// 		if (opacity > 0) {
+// 			opacity -= 0.2; // Adjust the increment to control the fade-in speed
+// 			window.setOpacity(opacity);
+// 		} else {
+// 			clearInterval(interval);
+// 			window.close();
+// 		}
+// 	}, 50); // Adjust the interval to control the fade-in smoothness
+// }
 
 /*--------Settings Functions--------*/
 
@@ -403,7 +468,14 @@ function initializeSettings() {
 	setting_end_time = settings.getSync("end_time_setting");
 	setting_folder_path = settings.getSync("folder_path_setting");
 	//	setting_test = settings.getSync("test_setting");
+	setting_days = settings.getSync("days_settings");
 
+}
+
+/*--------Opening Document--------*/
+function openDocument() {
+	const save_folder_path = path.join(setting_folder_path, "Daily Log.docx"); // Replace with settings value
+	spawn("explorer", [save_folder_path]);
 }
 
 // Called when the application is ready to start. Anything nested here will be able to run when the application is ready to start.
@@ -517,9 +589,9 @@ ipcMain.on("submit-entry", async (event, content) => {
 	// const pythonProcess = spawn("python", [path.join(__dirname, "assets/scripts/", "word_doc.py")], {
 	// 	stdio: ["pipe", "pipe", "pipe"],
 	// });
-
-	// path_script = path.join(__dirname, "assets/scripts/dist/word_doc/word_doc.exe");
-	path_script = path.join(process.resourcesPath, "dist/word_doc/word_doc.exe");
+	console.log(`content: ${content}`);
+	path_script = path.join(__dirname, "assets/scripts/dist/word_doc/word_doc.exe");
+	// path_script = path.join(process.resourcesPath, "dist/word_doc/word_doc.exe");
 
 	const pythonProcess = await spawn(path_script, {
 		stdio: ["pipe", "pipe", "pipe"],
@@ -607,10 +679,35 @@ ipcMain.on("apply-settings", (event, reminderTime, snoozeTime, startTime, endTim
 	setting_end_time = endTime;
 });
 
+// Entry point for advanced settings
+ipcMain.on("open-advanced-settings", (event) => {
+	console.log(`open-advanced-settings`);
+	handleAdvancedSettingsWindow(showAdvancedSettingsWindow = true);
+});
+
+// Function to handle loading advanced settings
+ipcMain.handle("load-advanced-settings", async (event) => {
+	console.log(`load-advanced-settings`);
+	return setting_days;
+});
+
+// Function to update the advanced settings
+ipcMain.on("apply-advanced-settings", (event, days_settings) => {
+	console.log(`apply-advanced-settings`);
+	// Save settings values
+	settings.setSync("days_settings", days_settings);
+
+	// Update settings values
+	setting_days = days_settings;
+
+	// Close the advanced settings window
+	handleAdvancedSettingsWindow(showAdvancedSettingsWindow = false);
+});
+
 // Exit point for settings
 ipcMain.on("close-settings", (event) => {
 	console.log(`close-settings`);
-	handleSettingsWindow((showSettingsWindow = false));
+	handleSettingsWindow(showSettingsWindow = false);
 });
 
 /*--------General Main Window Event Listeners--------*/
@@ -633,8 +730,7 @@ ipcMain.on("entry-submitted", (event) => {
 ipcMain.on("open-document", (event) => {
 	console.log(`open-document`);
 	// Open the word document
-	const save_folder_path = path.join(setting_folder_path, "Daily Log.docx"); // Replace with settings value
-	spawn("explorer", [save_folder_path]);
+	openDocument();
 
 });
 
