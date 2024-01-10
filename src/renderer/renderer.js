@@ -16,7 +16,7 @@ const entry_done_element = document.getElementById("entry_done");
 const editor_element = document.getElementById("editor");
 
 
-var alert_dialog_id = "#alert_dialog";
+var alert_dialog_id = "#alert-dialog";
 
 const alert_error_title = "Error";
 const alert_warning_title = "Warning";

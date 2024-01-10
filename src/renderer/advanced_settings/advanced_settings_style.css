@@ -21,7 +21,7 @@ body {
 .day-container {
 	width: 370px;
     display: flex;
-    border: 1px solid black;
+    /* border: 1px solid black; */
     margin-left: 20px;
     margin-top: 5px;
 }
@@ -29,7 +29,7 @@ body {
 
 .day-text {
 	flex: 1.2;
-    border: 1px solid red;
+    /* border: 1px solid red; */
 	text-align: center;
 }
 
@@ -37,7 +37,7 @@ body {
 	flex: 1;
     background-color: none;
    	border-radius: 3px;
-    border: 1px solid black;
+    /* border: 1px solid black; */
     margin-left: 10px;
 }
 

@@ -5,7 +5,7 @@
 
 const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, screen, nativeImage } = require("electron/main");
 if (require("electron-squirrel-startup")) app.quit(); // Required by electron-forge
-Menu.setApplicationMenu(null);	// Remove the default menu bar - will speed up the application on startup
+Menu.setApplicationMenu(null); // Remove the default menu bar - will speed up the application on startup
 
 // require("v8-compile-cache");
 
@@ -59,7 +59,7 @@ function createMainWindow() {
 		//	skipTaskbar: true, // Don't show the window in the taskbar
 		webPreferences: {
 			preload: path.join(__dirname, "renderer/preload.js"),
-			webContents: true,	// Allows the webContents to be accessed from the renderer process (so I can use the developer console)
+			webContents: true, // Allows the webContents to be accessed from the renderer process (so I can use the developer console)
 		},
 	});
 
@@ -162,14 +162,14 @@ function createSettingsWindow() {
 function createAdvancedSettingsWindow() {
 	advancedSettingsWindow = new BrowserWindow({
 		width: 420,
-		height: 250,
+		height: 350,
 		frame: false, // Creates a frameless window
 		titleBarStyle: "hidden", // Results in a hidden title bar and a full size content window
 		// parent: settingsWindow, // Makes the settings window a child of the main window
 		modal: true, // Have it so nothing else can be selected until the settings window is closed
 		center: true, // Center the window
 		show: false, // Don't show the window when it is created
-		resizable: true, // Don't allow the window to be resized
+		resizable: false, // Don't allow the window to be resized
 		webPreferences: {
 			preload: path.join(__dirname, "renderer/advanced_settings/advanced_settings_preload.js"),
 			webContents: true, // Allows the webContents to be accessed from the renderer process (so I can use the developer console)
@@ -177,7 +177,6 @@ function createAdvancedSettingsWindow() {
 	});
 
 	advancedSettingsWindow.loadFile(path.join(__dirname, "renderer/advanced_settings/advanced-settings-window.html"));
-	advancedSettingsWindow.webContents.openDevTools();
 
 	advancedSettingsWindow.on("closed", function () {
 		advancedSettingsWindow = null;
@@ -224,13 +223,19 @@ function createTrayBar() {
 			label: "Snooze for Day",
 			click: () => {
 				console.log(`Tray Day Snooze clicked!`);
-				// closeFromToolbarWindow(setting_snooze_time);
+				clearTimeout(reopenTimer); // Clear the timer
+				// Call setReopenTimer with the snooze for day status
 			},
 		},
 		{
 			label: "Temporary Run Time",
 			click: () => {
 				console.log(`Temporary Runtime clicked!`);
+
+				// Open a window to set these temporary settings values
+
+				// Set the reopen timer with the temporary settings status
+
 				// closeFromToolbarWindow(setting_snooze_time);
 			},
 		},
@@ -264,7 +269,113 @@ function setWindowPosition(window) {
 	return [x, y];
 }
 
+function getTimes() {
+	// Get the current day of the week, get the settings_days variable, and get the current day's settings
+	const current_day = current_time.getDay();
+	// We store the days such that Monday is 0 and SUnday is 6, but the Date object returns Sunday as 0 and Saturday as 6, so we need to adjust the current day
+	// A little silly but storing the days this way makes more sense from a working persons perspective
+	if (current_day == 0) current_day = 6;
+	else current_day = current_day - 1;
+
+	const current_day_settings = setting_days[current_day];
+	const next_day_settings = setting_days[(current_day + 1) % 7];
+
+	// Get the current time in minutes
+	const current_time = new Date();
+	const current_time_in_minutes = current_time.getHours() * 60 + current_time.getMinutes();
+
+	start_time = current_day_settings.startTime.split(":");
+	const current_start_time_in_minutes = parseInt(start_time[0]) * 60 + parseInt(start_time[1]);
+
+	end_time = current_day_settings.endTime.split(":");
+	const current_end_time_in_minutes = parseInt(end_time[0]) * 60 + parseInt(end_time[1]);
+
+	start_time = next_day_settings.startTime.split(":");
+	const next_start_time_in_minutes = parseInt(start_time[0]) * 60 + parseInt(start_time[1]);
+
+	return {
+		current_time: current_time_in_minutes,
+		current_start_time: current_start_time_in_minutes,
+		current_end_time: current_end_time_in_minutes,
+		next_start_time: next_start_time_in_minutes,
+	};
+}
+
+REOPEN_STATUS_REMINDER = 1;
+REOPEN_STATUS_SNOOZE = 2;
+REOPEN_STATUS_SNOOZE_FOR_DAY = 3;
+REOPEN_STATUS_OUTSIDE_HOURS = 4;
+
 // Function to get the next reopen time (in minutes) based on the current time, start time, end time, and the reopen delay
+function getNextReopenTime(reopenStatus) {
+	const minutes_in_day = 24 * 60;
+
+	times = getTimes();
+
+	// Check if the status is snooze for day. If it is, calculate the time from now until the start of the next day plus the settings reminder time
+	if (reopenStatus == REOPEN_STATUS_SNOOZE_FOR_DAY) {
+		reopenDelay = parseInt(setting_reminder_time);
+		reopenDelay = minutes_in_day - times.current_time + times.next_start_time + reopenDelay;
+		return reopenDelay;
+	}
+	// Check if the status is snooze. If it is, just delay the reopen by the snooze time
+	else if (reopenStatus == REOPEN_STATUS_SNOOZE) {
+		reopenDelay = parseInt(setting_snooze_time);
+		return reopenDelay;
+	}
+	// Check if the status is reminder
+	else if (reopenStatus == REOPEN_STATUS_REMINDER) {
+		// if the reopen time is greater than the end time, set it to open at the end time
+		if (times.current_time + reopenDelay >= times.current_end_time) {
+			reopenDelay = times.current_end_time - times.current_time;
+			return reopenDelay;
+		} 
+		// Otherwise, just return the reopen delay time
+		else {
+			reopenDelay = parseInt(setting_reminder_time);
+			return reopenDelay;
+		}
+	}
+	// Check if the status is outside working hours
+	else if (reopenStatus == REOPEN_STATUS_OUTSIDE_HOURS) {
+		reopenDelay = parseInt(setting_reminder_time);
+		// We are in the same day - open after the start time by the reminder time
+		if (times.current_time >= times.current_end_time) {
+			reopenDelay = minutes_in_day - times.current_time + times.next_start_time + reopenDelay;
+			return reopenDelay;
+		}
+		// We are next day before start time - open after the start time by the reminder time (DOUBLE CHECK THIS)
+		else if (times.current_time < times.current_start_time) {
+			reopenDelay = times.current_start_time + reopenDelay - times.current_time;
+			return reopenDelay;
+		}
+	}
+}
+// Get the current time, end time for the current day, and start time for the current day in minutes (DOUBLE CHECK THIS)
+function insideWorkHours() {
+	times = getTimes();
+
+	if (times.current_time < times.current_end_time && times.current_time >= times.current_start_time) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function getMainWindowColor() {
+	times = getTimes();
+
+	// If we are after the end time, return purple
+	if (times.current_time >= times.current_end_time) {
+		return "#3f51b5";
+	}
+	// If we are before the start time, return orange
+	else if (times.current_time < times.current_start_time) {
+		return "#ff9800";
+	}
+}
+
+/*
 function getNextReopenTime(reopenDelay) {
 	const minutes_in_day = 24 * 60;
 
@@ -314,7 +425,7 @@ function getNextReopenTime(reopenDelay) {
 		return reopenDelay;
 	}
 }
-
+*/
 // Function to set the timer to reopen the application
 function setReopenTimer(reopenDelay) {
 	// Get the next reopen time
@@ -353,6 +464,11 @@ function initializeApplication() {
 }
 
 function initializeToolbar() {
+	if (!insideWorkHours()) {
+		setReopenTimer(REOPEN_STATUS_OUTSIDE_HOURS);
+		return;
+	}
+
 	createMainWindow();
 
 	// Load the toolbar window once the main window is ready to show (if the user clicks the toolbar button before the main window is ready to show, it will cause an error)
@@ -367,7 +483,13 @@ function initializeToolbar() {
 function initializeMainWindow() {
 	// Fade out the toolbar window (closing is handled in the fadeOutWindow function)
 	// fadeOutWindow(toolbarWindow);
-	toolbarWindow.close()
+
+	if (checkIsLastEntry()) {
+		// Send message to renderer process to change the background color of the main window
+		mainWindow.webContents.send("last-entry", true);
+	}
+
+	toolbarWindow.close();
 	mainWindow.show();
 
 	createSettingsWindow();
@@ -378,7 +500,7 @@ function initializeMainWindow() {
 
 function closeFromToolbarWindow(reopenDelay) {
 	// fadeOutWindow(toolbarWindow);
-	toolbarWindow.close
+	toolbarWindow.close;
 	mainWindow.close();
 
 	createTrayBar();
@@ -389,13 +511,17 @@ function closeFromToolbarWindow(reopenDelay) {
 function closeFromMainWindow(reopenDelay) {
 	// Fade out the main window (closing is handled in the fadeOutWindow function)
 	// fadeOutWindow(mainWindow);
-	mainWindow.close()
+	mainWindow.close();
 	settingsWindow.close();
 	croppingWindow.close();
 
 	createTrayBar();
 
-	setReopenTimer(reopenDelay);
+	if (!insideWorkHours()) {
+		setReopenTimer(REOPEN_STATUS_OUTSIDE_HOURS);
+	} else {
+		setReopenTimer(REOPEN_STATUS_REMINDER);
+	}
 }
 
 /*--------Show/hide Functions--------*/
@@ -422,9 +548,9 @@ function handleSettingsWindow(showSettingsWindow) {
 
 function handleAdvancedSettingsWindow(showAdvancedSettingsWindow) {
 	if (showAdvancedSettingsWindow) {
-		advancedSettingsWindow.show()
+		advancedSettingsWindow.show();
 	} else {
-		advancedSettingsWindow.hide()
+		advancedSettingsWindow.hide();
 	}
 }
 
@@ -469,7 +595,6 @@ function initializeSettings() {
 	setting_folder_path = settings.getSync("folder_path_setting");
 	//	setting_test = settings.getSync("test_setting");
 	setting_days = settings.getSync("days_settings");
-
 }
 
 /*--------Opening Document--------*/
@@ -682,12 +807,15 @@ ipcMain.on("apply-settings", (event, reminderTime, snoozeTime, startTime, endTim
 // Entry point for advanced settings
 ipcMain.on("open-advanced-settings", (event) => {
 	console.log(`open-advanced-settings`);
-	handleAdvancedSettingsWindow(showAdvancedSettingsWindow = true);
+	handleAdvancedSettingsWindow((showAdvancedSettingsWindow = true));
 });
 
 // Function to handle loading advanced settings
 ipcMain.handle("load-advanced-settings", async (event) => {
 	console.log(`load-advanced-settings`);
+	console.log(setting_days);
+	// advancedSettingsWindow.webContents.openDevTools();
+
 	return setting_days;
 });
 
@@ -699,15 +827,15 @@ ipcMain.on("apply-advanced-settings", (event, days_settings) => {
 
 	// Update settings values
 	setting_days = days_settings;
-
+	console.log("setting_days: ", setting_days);
 	// Close the advanced settings window
-	handleAdvancedSettingsWindow(showAdvancedSettingsWindow = false);
+	handleAdvancedSettingsWindow((showAdvancedSettingsWindow = false));
 });
 
 // Exit point for settings
 ipcMain.on("close-settings", (event) => {
 	console.log(`close-settings`);
-	handleSettingsWindow(showSettingsWindow = false);
+	handleSettingsWindow((showSettingsWindow = false));
 });
 
 /*--------General Main Window Event Listeners--------*/
@@ -731,7 +859,6 @@ ipcMain.on("open-document", (event) => {
 	console.log(`open-document`);
 	// Open the word document
 	openDocument();
-
 });
 
 /*--------General Application Event Listeners--------*/

@@ -1,4 +1,4 @@
-var alert_dialog_id = "#alert_dialog";
+var alert_dialog_id = "#alert-dialog";
 
 const alert_error_title = "Error";
 const alert_warning_title = "Warning";
@@ -148,7 +148,7 @@ function createAlertDialog(alert_title, alert_content) {
 $(function () {
 	// Dialog initialization
 	$(alert_dialog_id).dialog({
-		autoOpen: false, // Dialog won't open on page load
+		autoOpen: fale, // Dialog won't open on page load
 		resizable: false, // Make it not resizable
 		modal: true, // Make it a modal dialog
 		buttons: {
