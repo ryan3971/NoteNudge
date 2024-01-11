@@ -227,18 +227,18 @@ function createTrayBar() {
 				// Call setReopenTimer with the snooze for day status
 			},
 		},
-		{
-			label: "Temporary Run Time",
-			click: () => {
-				console.log(`Temporary Runtime clicked!`);
+		// {
+		// 	label: "Temporary Run Time",
+		// 	click: () => {
+		// 		console.log(`Temporary Runtime clicked!`);
 
-				// Open a window to set these temporary settings values
+		// 		// Open a window to set these temporary settings values
 
-				// Set the reopen timer with the temporary settings status
+		// 		// Set the reopen timer with the temporary settings status
 
-				// closeFromToolbarWindow(setting_snooze_time);
-			},
-		},
+		// 		// closeFromToolbarWindow(setting_snooze_time);
+		// 	},
+		// },
 		{
 			label: "Quit",
 			click: () => {
@@ -270,34 +270,48 @@ function setWindowPosition(window) {
 }
 
 function getTimes() {
+	var current_start_time;
+	var current_end_time;
+	var next_start_time;
+	
 	// Get the current day of the week, get the settings_days variable, and get the current day's settings
-	const current_day = current_time.getDay();
+	var current_time = new Date();
+	var current_day = current_time.getDay();
 	// We store the days such that Monday is 0 and SUnday is 6, but the Date object returns Sunday as 0 and Saturday as 6, so we need to adjust the current day
 	// A little silly but storing the days this way makes more sense from a working persons perspective
 	if (current_day == 0) current_day = 6;
 	else current_day = current_day - 1;
 
+
 	const current_day_settings = setting_days[current_day];
 	const next_day_settings = setting_days[(current_day + 1) % 7];
 
-	// Get the current time in minutes
-	const current_time = new Date();
-	const current_time_in_minutes = current_time.getHours() * 60 + current_time.getMinutes();
+	// Check if there are any custom settings for the current day - if there aren't, use the default times
+	if (current_day_settings['checkbox'] == true) {
+		current_start_time = current_day_settings.startTime.split(":");
+		current_end_time = current_day_settings.endTime.split(":");
+	}
+	else	{
+		current_start_time = setting_start_time.split(":");
+		current_end_time = setting_end_time.split(":");
+	}
 
-	start_time = current_day_settings.startTime.split(":");
-	const current_start_time_in_minutes = parseInt(start_time[0]) * 60 + parseInt(start_time[1]);
-
-	end_time = current_day_settings.endTime.split(":");
-	const current_end_time_in_minutes = parseInt(end_time[0]) * 60 + parseInt(end_time[1]);
-
-	start_time = next_day_settings.startTime.split(":");
-	const next_start_time_in_minutes = parseInt(start_time[0]) * 60 + parseInt(start_time[1]);
+	// Also check if there are any custom settings for the next day - if there aren't, use the default times
+	if (next_day_settings["checkbox"] == true) {
+		next_start_time = next_day_settings.startTime.split(":");
+	} else {
+		next_start_time = setting_start_time.split(":");
+	}
+	current_start_time = parseInt(current_start_time[0]) * 60 + parseInt(current_start_time[1]);
+	current_end_time = parseInt(current_end_time[0]) * 60 + parseInt(current_end_time[1]);
+	next_start_time = parseInt(next_start_time[0]) * 60 + parseInt(next_start_time[1]);
+	current_time = current_time.getHours() * 60 + current_time.getMinutes();
 
 	return {
-		current_time: current_time_in_minutes,
-		current_start_time: current_start_time_in_minutes,
-		current_end_time: current_end_time_in_minutes,
-		next_start_time: next_start_time_in_minutes,
+		current_time: current_time,
+		current_start_time: current_start_time,
+		current_end_time: current_end_time,
+		next_start_time: next_start_time,
 	};
 }
 
@@ -307,29 +321,29 @@ REOPEN_STATUS_SNOOZE_FOR_DAY = 3;
 REOPEN_STATUS_OUTSIDE_HOURS = 4;
 
 // Function to get the next reopen time (in minutes) based on the current time, start time, end time, and the reopen delay
-function getNextReopenTime(reopenStatus) {
+function getNextReopenTime(reopen_status) {
 	const minutes_in_day = 24 * 60;
-
+	var reopenDelay;
 	times = getTimes();
 
 	// Check if the status is snooze for day. If it is, calculate the time from now until the start of the next day plus the settings reminder time
-	if (reopenStatus == REOPEN_STATUS_SNOOZE_FOR_DAY) {
+	if (reopen_status == REOPEN_STATUS_SNOOZE_FOR_DAY) {
 		reopenDelay = parseInt(setting_reminder_time);
 		reopenDelay = minutes_in_day - times.current_time + times.next_start_time + reopenDelay;
 		return reopenDelay;
 	}
 	// Check if the status is snooze. If it is, just delay the reopen by the snooze time
-	else if (reopenStatus == REOPEN_STATUS_SNOOZE) {
+	else if (reopen_status == REOPEN_STATUS_SNOOZE) {
 		reopenDelay = parseInt(setting_snooze_time);
 		return reopenDelay;
 	}
 	// Check if the status is reminder
-	else if (reopenStatus == REOPEN_STATUS_REMINDER) {
+	else if (reopen_status == REOPEN_STATUS_REMINDER) {
 		// if the reopen time is greater than the end time, set it to open at the end time
 		if (times.current_time + reopenDelay >= times.current_end_time) {
 			reopenDelay = times.current_end_time - times.current_time;
 			return reopenDelay;
-		} 
+		}
 		// Otherwise, just return the reopen delay time
 		else {
 			reopenDelay = parseInt(setting_reminder_time);
@@ -337,7 +351,7 @@ function getNextReopenTime(reopenStatus) {
 		}
 	}
 	// Check if the status is outside working hours
-	else if (reopenStatus == REOPEN_STATUS_OUTSIDE_HOURS) {
+	else if (reopen_status == REOPEN_STATUS_OUTSIDE_HOURS) {
 		reopenDelay = parseInt(setting_reminder_time);
 		// We are in the same day - open after the start time by the reminder time
 		if (times.current_time >= times.current_end_time) {
@@ -355,7 +369,7 @@ function getNextReopenTime(reopenStatus) {
 function insideWorkHours() {
 	times = getTimes();
 
-	if (times.current_time < times.current_end_time && times.current_time >= times.current_start_time) {
+	if (times.current_time <= times.current_end_time && times.current_time >= times.current_start_time) {
 		return true;
 	} else {
 		return false;
@@ -366,70 +380,19 @@ function getMainWindowColor() {
 	times = getTimes();
 
 	// If we are after the end time, return purple
-	if (times.current_time >= times.current_end_time) {
+	if (times.current_time >= times.current_end_time - 60) {
 		return "#3f51b5";
 	}
 	// If we are before the start time, return orange
-	else if (times.current_time < times.current_start_time) {
+	else if (times.current_time < times.current_start_time + 60) {
 		return "#ff9800";
 	}
 }
 
-/*
-function getNextReopenTime(reopenDelay) {
-	const minutes_in_day = 24 * 60;
-
-	reopenDelay = parseInt(reopenDelay);
-
-	// Get the current time in minutes
-	const current_time = new Date();
-	const current_hour = current_time.getHours();
-	const current_minute = current_time.getMinutes();
-	const current_time_in_minutes = current_hour * 60 + current_minute;
-
-	end_time = setting_end_time.split(":");
-	end_hour = parseInt(end_time[0]);
-	end_minute = parseInt(end_time[1]);
-	const end_time_in_minutes = end_hour * 60 + end_minute;
-
-	start_time = setting_start_time.split(":");
-	start_hour = parseInt(start_time[0]);
-	start_minute = parseInt(start_time[1]);
-	const start_time_in_minutes = start_hour * 60 + start_minute;
-
-	const reopen_time_in_minutes = current_time_in_minutes + reopenDelay;
-
-	// Inside working hours
-	if (current_time_in_minutes < end_time_in_minutes && current_time_in_minutes >= start_time_in_minutes) {
-		// if the reopen time is greater than the end time
-		if (reopen_time_in_minutes >= end_time_in_minutes) {
-			reopenDelay = end_time_in_minutes - current_time_in_minutes;
-			return reopenDelay;
-		} else {
-			return reopenDelay;
-		}
-	}
-	// Outside working hours
-
-	// We are in the same day
-	else if (current_time_in_minutes >= end_time_in_minutes) {
-		reopenDelay = minutes_in_day - (current_time_in_minutes - start_time_in_minutes);
-		return reopenDelay;
-
-		// We are next day before start time
-	} else if (current_time_in_minutes < start_time_in_minutes) {
-		reopenDelay = start_time_in_minutes - current_time_in_minutes;
-		return reopenDelay;
-	} else {
-		// Default - just return the reopen delay
-		return reopenDelay;
-	}
-}
-*/
 // Function to set the timer to reopen the application
-function setReopenTimer(reopenDelay) {
+function setReopenTimer(reopen_status) {
 	// Get the next reopen time
-	reopenDelay = getNextReopenTime(reopenDelay);
+	var reopenDelay = getNextReopenTime(reopen_status);
 	// convert to milliseconds
 	reopenDelay = reopenDelay * 60 * 1000;
 
@@ -466,6 +429,7 @@ function initializeApplication() {
 function initializeToolbar() {
 	if (!insideWorkHours()) {
 		setReopenTimer(REOPEN_STATUS_OUTSIDE_HOURS);
+		createTrayBar();
 		return;
 	}
 
@@ -484,10 +448,10 @@ function initializeMainWindow() {
 	// Fade out the toolbar window (closing is handled in the fadeOutWindow function)
 	// fadeOutWindow(toolbarWindow);
 
-	if (checkIsLastEntry()) {
-		// Send message to renderer process to change the background color of the main window
-		mainWindow.webContents.send("last-entry", true);
-	}
+	// if (checkIsLastEntry()) {
+	// 	// Send message to renderer process to change the background color of the main window
+	// 	mainWindow.webContents.send("last-entry", true);
+	// }
 
 	toolbarWindow.close();
 	mainWindow.show();
@@ -498,17 +462,17 @@ function initializeMainWindow() {
 
 /*--------Close Functions--------*/
 
-function closeFromToolbarWindow(reopenDelay) {
+function closeFromToolbarWindow(reopen_status) {
 	// fadeOutWindow(toolbarWindow);
 	toolbarWindow.close;
 	mainWindow.close();
 
 	createTrayBar();
 
-	setReopenTimer(reopenDelay);
+	setReopenTimer(reopen_status);
 }
 
-function closeFromMainWindow(reopenDelay) {
+function closeFromMainWindow(reopen_status) {
 	// Fade out the main window (closing is handled in the fadeOutWindow function)
 	// fadeOutWindow(mainWindow);
 	mainWindow.close();
@@ -520,7 +484,7 @@ function closeFromMainWindow(reopenDelay) {
 	if (!insideWorkHours()) {
 		setReopenTimer(REOPEN_STATUS_OUTSIDE_HOURS);
 	} else {
-		setReopenTimer(REOPEN_STATUS_REMINDER);
+		setReopenTimer(reopen_status);
 	}
 }
 
@@ -630,12 +594,12 @@ ipcMain.on("taskbar-event", (event, taskbar_event) => {
 		// Skip the reminder
 	} else if (taskbar_event === BUTTON_SKIP) {
 		console.log(`BUTTON_SKIP`);
-		closeFromToolbarWindow(setting_reminder_time);
+		closeFromToolbarWindow(REOPEN_STATUS_REMINDER);
 
 		// Snooze the reminder
 	} else if (taskbar_event === BUTTON_SNOOZE) {
 		console.log(`BUTTON_SNOOZE`);
-		closeFromToolbarWindow(setting_snooze_time);
+		closeFromToolbarWindow(REOPEN_STATUS_SNOOZE);
 
 		// Shutdown application
 	} else if (taskbar_event === BUTTON_CLOSE) {
@@ -715,8 +679,8 @@ ipcMain.on("submit-entry", async (event, content) => {
 	// 	stdio: ["pipe", "pipe", "pipe"],
 	// });
 	console.log(`content: ${content}`);
-	path_script = path.join(__dirname, "assets/scripts/dist/word_doc/word_doc.exe");
-	// path_script = path.join(process.resourcesPath, "dist/word_doc/word_doc.exe");
+	//path_script = path.join(__dirname, "assets/scripts/dist/word_doc/word_doc.exe");
+	path_script = path.join(process.resourcesPath, "dist/word_doc/word_doc.exe");
 
 	const pythonProcess = await spawn(path_script, {
 		stdio: ["pipe", "pipe", "pipe"],
@@ -847,12 +811,12 @@ ipcMain.on("skip-entry", (event) => {
 
 ipcMain.on("snooze-entry", (event) => {
 	console.log(`snooze-entry`);
-	closeFromMainWindow(setting_snooze_time);
+	closeFromMainWindow(REOPEN_STATUS_SNOOZE);
 });
 
 ipcMain.on("entry-submitted", (event) => {
 	console.log(`entry-submitted`);
-	closeFromMainWindow(setting_reminder_time);
+	closeFromMainWindow(REOPEN_STATUS_REMINDER);
 });
 
 ipcMain.on("open-document", (event) => {
