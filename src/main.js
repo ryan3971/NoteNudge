@@ -38,6 +38,12 @@ const ENTRY_SUBMISSION_SUCCESS = 1;
 const ENTRY_SUBMISSION_FAILURE_FILE_OPEN = 2;
 const ENTRY_SUBMISSION_FAILURE_UNKNOWN = 3;
 
+// Reopen Status Variables
+const REOPEN_STATUS_REMINDER = 1;
+const REOPEN_STATUS_SNOOZE = 2;
+const REOPEN_STATUS_SNOOZE_FOR_DAY = 3;
+const REOPEN_STATUS_OUTSIDE_HOURS = 4;
+
 let setting_reminder_time;
 let setting_snooze_time;
 let setting_start_time;
@@ -282,22 +288,27 @@ function getTimes() {
 	if (current_day == 0) current_day = 6;
 	else current_day = current_day - 1;
 
-
-	const current_day_settings = setting_days[current_day];
-	const next_day_settings = setting_days[(current_day + 1) % 7];
-
+	// Catch TypeError exceptions if advanced settings are not set
+	var current_day_settings;
+	var next_day_settings;
+	try	{
+		current_day_settings = setting_days[current_day];
+		next_day_settings = setting_days[(current_day + 1) % 7];
+	}
+	catch (err)	{
+		console.log("Error getting current day settings: ", err);
+	}
 	// Check if there are any custom settings for the current day - if there aren't, use the default times
-	if (current_day_settings['checkbox'] == true) {
+	if (current_day_settings != undefined && current_day_settings["checkbox"] == true) {
 		current_start_time = current_day_settings.startTime.split(":");
 		current_end_time = current_day_settings.endTime.split(":");
-	}
-	else	{
+	} else {
 		current_start_time = setting_start_time.split(":");
 		current_end_time = setting_end_time.split(":");
 	}
 
 	// Also check if there are any custom settings for the next day - if there aren't, use the default times
-	if (next_day_settings["checkbox"] == true) {
+	if (next_day_settings != undefined && next_day_settings["checkbox"] == true) {
 		next_start_time = next_day_settings.startTime.split(":");
 	} else {
 		next_start_time = setting_start_time.split(":");
@@ -314,11 +325,6 @@ function getTimes() {
 		next_start_time: next_start_time,
 	};
 }
-
-REOPEN_STATUS_REMINDER = 1;
-REOPEN_STATUS_SNOOZE = 2;
-REOPEN_STATUS_SNOOZE_FOR_DAY = 3;
-REOPEN_STATUS_OUTSIDE_HOURS = 4;
 
 // Function to get the next reopen time (in minutes) based on the current time, start time, end time, and the reopen delay
 function getNextReopenTime(reopen_status) {
@@ -464,7 +470,7 @@ function initializeMainWindow() {
 
 function closeFromToolbarWindow(reopen_status) {
 	// fadeOutWindow(toolbarWindow);
-	toolbarWindow.close;
+	toolbarWindow.close();
 	mainWindow.close();
 
 	createTrayBar();
@@ -679,8 +685,8 @@ ipcMain.on("submit-entry", async (event, content) => {
 	// 	stdio: ["pipe", "pipe", "pipe"],
 	// });
 	console.log(`content: ${content}`);
-	//path_script = path.join(__dirname, "assets/scripts/dist/word_doc/word_doc.exe");
-	path_script = path.join(process.resourcesPath, "dist/word_doc/word_doc.exe");
+	path_script = path.join(__dirname, "assets/scripts/dist/word_doc/word_doc.exe");
+	//path_script = path.join(process.resourcesPath, "dist/word_doc/word_doc.exe");
 
 	const pythonProcess = await spawn(path_script, {
 		stdio: ["pipe", "pipe", "pipe"],
@@ -806,7 +812,7 @@ ipcMain.on("close-settings", (event) => {
 
 ipcMain.on("skip-entry", (event) => {
 	console.log(`skip-entry`);
-	closeFromMainWindow(setting_reminder_time);
+	closeFromMainWindow(REOPEN_STATUS_REMINDER);
 });
 
 ipcMain.on("snooze-entry", (event) => {
