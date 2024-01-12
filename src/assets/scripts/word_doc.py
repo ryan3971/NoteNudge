@@ -14,10 +14,10 @@ def append_text_to_word_document(text, document_path):
         days=datetime.datetime.now().weekday()
     )
     current_date = current_date.strftime("%B %d")
-    week_heading = f"Week of {current_date}"
+    week_heading = f"Week of {current_date}:"
 
     # Get the current weekday
-    current_weekday = datetime.datetime.now().strftime("%A")
+    current_weekday = datetime.datetime.now().strftime("%A") + ":"
 
     # Check if the document is open, if so, prompt the user to close it
     # Check if the document exists, if not create it
@@ -51,7 +51,7 @@ def append_text_to_word_document(text, document_path):
 
     if not week_heading_found:
         # set the heading style to Calibri Light (Headings)
-        document.add_heading(week_heading + ":", level=1)
+        document.add_heading(week_heading, level=1)
 
     # Find or create the weekday heading
     weekday_heading_found = False
@@ -61,7 +61,7 @@ def append_text_to_word_document(text, document_path):
             break
 
     if not weekday_heading_found:
-        document.add_heading(current_weekday + ":", level=2)
+        document.add_heading(current_weekday, level=2)
 
     # # Find the entry number for the day
     # entry_number = 1
