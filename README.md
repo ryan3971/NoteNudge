@@ -21,6 +21,8 @@ Other note taking tools exist but they tend to be overly complicated and have a 
 ### Settings
 This area is for user defined inputs. The following breaks down the setting options:
 
+[Image]
+
 **Reminder Time (hour:min):** This is the time between entries. After you submit an entry, or click the **Skip** button, the application is hidden until this amount of time elapses. There are some scenarios where this is not the case (see below).
 
 **Snooze Time (hour:min):** Similar to the Reminder Time but this should be a smaller value used to only temporarily delay submitting an entry.
@@ -34,42 +36,69 @@ This area is for user defined inputs. The following breaks down the setting opti
 If the user attempts to close the setting with invalid inputs, an alert will be generated reporting the issue. The user cannot close the settings until these issues are resolved.
 
 ### Toolbar
+
+[Image]
+
 The toolbar is one of two ways to access the Main Window where the user can submit an entry. It is made up of four buttons:
 
- 1. *Add Entry* - this closes the Toolbar window and opens the main window
- 2. *Skip* - this 
+ **Add Entry** - Closes the Toolbar window and opens the main window.
+ 
+**Skip** - Closes the Toolbar for the duration of *Reminder Time*  (set in the *Settings*)
+
+**Snooze** - Closes the Toolbar for the duration *Snooze Time*  (set in the *Settings*)
+
+**Shut Down:** Completely shuts down the application
 
 ### Main Window
+
+[Image]
+
 The Main Window holds the editor & associated formatting options, along with a side panel with a series of buttons.
 
 **Editor**: This is the area where the user can write or paste whatever they want. 
 
 **Editor Toolbar:** This toolbar contains several well know formatting options for the text within the editor.
 
-Submit Entry:
+**Submit Entry:** Exports the text in the Editor to the Word Document
 
-Open Document:
+**Open Document:** Opens the Word Document
 
-Settings:
+**Settings:** Opens the Settings
 
-Skip Entry:
+**Skip Entry:** Closes the Main Window for the duration *Reminder Time*  (set in the *Settings*), where the Toolbar will then be shown
 
-Snooze:
+**Snooze:** Closes the Main Window for the duration *Snooze Time*  (set in the *Settings*), where the Toolbar will then be shown
 
-Shut Down:
+**Shut Down:** Completely shuts down the application
 
 ### Cropping
 Clicking the cropping button will hide the main window. The user can then click and drag across the section of the screen they want to capture. That section will then be displayed within the editor.
 
 [insert video of cropping in action]
 
-### Settings
+### Traybar
 
+[Image]
+
+An area where the application will always be accessible. The Traybar has four options:
+
+**Open:** Opens the Main Window
+
+**Open Document:** Opens the Word Document
+
+**Snooze for Day:** Hides the application for the remainder of the day (it will resume running the next day)
+
+**Quit:** Completely shuts down the application
 
 ### Advanced Settings
 
+[Image]
 
-### Traybar
+This window is accessible through the **Settings**  and is used to provide finer control over when the application runs. For each day of the week, the following options are available:
+
+**Enable/disable:** Checking this for a given day will have the application run on that day. Leaving it unchecked will mean the application will not run that day
+
+**Start Time/ End Time:** Identical to the options in the *Settings*, these times are used to fine tune when the application will run for the selected day. With the day checked but these times left blank, the application will use the default values provided in the *Settings*
 
 
-### Traying the Application
+### Using the Application
