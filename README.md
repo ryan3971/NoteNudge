@@ -41,7 +41,7 @@ If the user attempts to close the setting with invalid inputs, an alert will be 
 
 The toolbar is one of two ways to access the Main Window where the user can submit an entry. It is made up of four buttons:
 
- **Add Entry** - Closes the Toolbar window and opens the main window.
+**Add Entry** - Closes the Toolbar window and opens the main window.
  
 **Skip** - Closes the Toolbar for the duration of *Reminder Time*  (set in the *Settings*)
 
