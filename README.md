@@ -19,9 +19,9 @@ Other note taking tools exist but they tend to be overly complicated and have a 
 ## Application Breakdown
 
 ### Settings
-This area is for user defined inputs. The following breaks down the setting options:
+<img src="https://github.com/ryan3971/note_reminder/assets/30581189/6fd79e9d-1742-4e8c-a03a-47fe802fb1c5" width="400">
 
-[Image]
+This area is for user defined inputs. The following breaks down the setting options:
 
 **Reminder Time (hour:min):** This is the time between entries. After you submit an entry, or click the **Skip** button, the application is hidden until this amount of time elapses. There are some scenarios where this is not the case (see below).
 
@@ -52,7 +52,6 @@ The toolbar is one of two ways to access the Main Window where the user can subm
 ### Main Window
 
 <img src="https://github.com/ryan3971/note_reminder/assets/30581189/5441fa32-445d-4bd9-a132-a1821bc52605" width="700">
-
 
 The Main Window holds the editor & associated formatting options, along with a side panel with a series of buttons.
 
@@ -95,7 +94,8 @@ An area where the application will always be accessible. The Traybar has four op
 
 ### Advanced Settings
 
-[Image]
+<img src="https://github.com/ryan3971/note_reminder/assets/30581189/2cb9d619-6a11-4aca-ab46-295e44bf30a6" width="400">
+
 
 This window is accessible through the **Settings**  and is used to provide finer control over when the application runs. For each day of the week, the following options are available:
 
