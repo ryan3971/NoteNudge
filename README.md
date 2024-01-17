@@ -37,39 +37,42 @@ If the user attempts to close the setting with invalid inputs, an alert will be 
 
 ### Toolbar
 
-[Image]
+<img src="https://github.com/ryan3971/note_reminder/assets/30581189/5c215cd6-7af4-4ec8-9c85-9355fb2f45ab" width="150">
 
 The toolbar is one of two ways to access the Main Window where the user can submit an entry. It is made up of four buttons:
 
-**Add Entry** - Closes the Toolbar window and opens the main window.
+1) **Add Entry:** Closes the Toolbar window and opens the main window.
  
-**Skip** - Closes the Toolbar for the duration of *Reminder Time*  (set in the *Settings*)
+2) **Skip:** Closes the Toolbar for the duration of *Reminder Time*  (set in the *Settings*)
 
-**Snooze** - Closes the Toolbar for the duration *Snooze Time*  (set in the *Settings*)
+3) **Snooze:** Closes the Toolbar for the duration *Snooze Time*  (set in the *Settings*)
 
-**Shut Down:** Completely shuts down the application
+4) **Shut Down:** Completely shuts down the application
 
 ### Main Window
 
-[Image]
+<img src="https://github.com/ryan3971/note_reminder/assets/30581189/5441fa32-445d-4bd9-a132-a1821bc52605" width="700">
+
 
 The Main Window holds the editor & associated formatting options, along with a side panel with a series of buttons.
 
-**Editor**: This is the area where the user can write or paste whatever they want. 
+1) **Editor**: This is the area where the user can write or paste whatever they want. 
 
-**Editor Toolbar:** This toolbar contains several well know formatting options for the text within the editor.
+2) **Editor Toolbar:** This toolbar contains several well know formatting options for the text within the editor.
 
-**Submit Entry:** Exports the text in the Editor to the Word Document
+3) **Crop:** Capture a selected region of the screen to save as an image in the editor
 
-**Open Document:** Opens the Word Document
+4) **Submit Entry:** Exports the text in the Editor to the Word Document
 
-**Settings:** Opens the Settings
+5) **Open Document:** Opens the Word Document
 
-**Skip Entry:** Closes the Main Window for the duration *Reminder Time*  (set in the *Settings*), where the Toolbar will then be shown
+6) **Settings:** Opens the Settings
 
-**Snooze:** Closes the Main Window for the duration *Snooze Time*  (set in the *Settings*), where the Toolbar will then be shown
+7) **Skip Entry:** Closes the Main Window for the duration *Reminder Time*  (set in the *Settings*), where the Toolbar will then be shown
 
-**Shut Down:** Completely shuts down the application
+8) **Snooze:** Closes the Main Window for the duration *Snooze Time*  (set in the *Settings*), where the Toolbar will then be shown
+
+9) **Shut Down:** Completely shuts down the application
 
 ### Cropping
 Clicking the cropping button will hide the main window. The user can then click and drag across the section of the screen they want to capture. That section will then be displayed within the editor.
