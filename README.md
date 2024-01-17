@@ -76,11 +76,15 @@ The Main Window holds the editor & associated formatting options, along with a s
 ### Cropping
 Clicking the cropping button will hide the main window. The user can then click and drag across the section of the screen they want to capture. That section will then be displayed within the editor.
 
-[insert video of cropping in action]
+![crop-gif](https://github.com/ryan3971/note_reminder/assets/30581189/a80a7e3a-d21d-461f-8d67-c182637ddd6f)
 
 ### Traybar
 
 <img src="https://github.com/ryan3971/note_reminder/assets/30581189/b0a83d7a-43b5-4593-b721-3b8c1b5aec5b" width="150">
+
+
+https://github.com/ryan3971/note_reminder/assets/30581189/519bfa60-6ff8-42f1-bf6e-48fcc2e39595
+
 
 An area where the application will always be accessible. The Traybar has four options:
 
