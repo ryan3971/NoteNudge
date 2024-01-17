@@ -80,7 +80,7 @@ Clicking the cropping button will hide the main window. The user can then click 
 
 ### Traybar
 
-[Image]
+<img src="https://github.com/ryan3971/note_reminder/assets/30581189/b0a83d7a-43b5-4593-b721-3b8c1b5aec5b" width="150">
 
 An area where the application will always be accessible. The Traybar has four options:
 
