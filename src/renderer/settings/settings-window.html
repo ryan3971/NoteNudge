@@ -10,8 +10,6 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <link rel="stylesheet" href="../alert/alert_style.css">
-
-    <title>Reminder App</title>
 </head>
 
 <body>
@@ -63,19 +61,25 @@
             <span class="tooltiptext">Location of the generated word doc</span>
         </div>
         <input type="text" id="folderPath" readonly>
-        <button onclick="openFolderDialog()">Select Folder</button>
-    </div>
-
-    <div class="container">
+        
         <div class="grid-container">
             <!--Close Settings Button-->
-            <button id="apply-settings" onclick="applySettings()">Apply Settings</button>
+            <button onclick="openFolderDialog()">Select Folder</button>
             <!--Close Settings Button-->
-            <button id="close-settings" onclick="closeSettings()">Close Settings</button>
+            <button onclick="openAdvancedSettings()">Advanced...</button>
         </div>
     </div>
 
-    <div id="alert_dialog"></div>
+    <div class="container">
+        <!-- <div class="grid-container"> -->
+            <!--Close Settings Button-->
+            <!-- <button id="apply-settings" onclick="applySettings()">Apply Settings</button> -->
+            <!--Close Settings Button-->
+            <button id="close-settings" onclick="closeSettings()">Close Settings</button>
+        <!-- </div> -->
+    </div>
+
+    <div id="alert-dialog"></div>
 
     <script src="./settings_renderer.js"></script>
 </body>

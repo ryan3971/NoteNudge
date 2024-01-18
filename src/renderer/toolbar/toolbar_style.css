@@ -31,11 +31,11 @@ body {
 	grid-template-columns: 1fr 1fr;
 	grid-template-rows: 1fr 1fr;
 	/* Animation */
-	animation: pulse;
-	animation-duration: 60s; /* Run for 60 seconds; pulse for 3, wait for 57 */
-	animation-iteration-count: 2; /* Run twice */
-	animation-timing-function: linear;
-	animation-delay: 60s; /* Wait 60 seconds before starting */
+	/* animation: pulse; */
+	/* animation-duration: 60s; Run for 60 seconds; pulse for 3, wait for 57 */
+	/* animation-iteration-count: 2; Run twice */
+	/* animation-timing-function: linear; */
+	/* animation-delay: 60s; Wait 60 seconds before starting */
 }
 
 button {

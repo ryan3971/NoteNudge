@@ -1,4 +1,4 @@
-var alert_dialog_id = "#alert_dialog";
+var alert_dialog_id = "#alert-dialog";
 
 const alert_error_title = "Error";
 const alert_warning_title = "Warning";
@@ -127,6 +127,11 @@ async function openFolderDialog() {
 	document.getElementById("folderPath").value = folderPath;
 }
 
+function openAdvancedSettings() {
+	console.log("Open Advanced Settings Window");
+	window.electronAPI.handleOpenAdvancedSettings();
+}
+
 function closeSettings() {
 	console.log("Close Settings Window");
 	if (!applySettings()) return;
@@ -143,7 +148,7 @@ function createAlertDialog(alert_title, alert_content) {
 $(function () {
 	// Dialog initialization
 	$(alert_dialog_id).dialog({
-		autoOpen: false, // Dialog won't open on page load
+		autoOpen: fale, // Dialog won't open on page load
 		resizable: false, // Make it not resizable
 		modal: true, // Make it a modal dialog
 		buttons: {
