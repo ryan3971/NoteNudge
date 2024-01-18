@@ -106,6 +106,6 @@ This window is accessible through the **Settings**  and is used to provide finer
 
 ### Using the Application
 
-To use the application, download the executable here: [NoteNudge Executable](https://drive.google.com/uc?export=download&id=1hmO-U10X9lPUMdoci9weH3lpn_WsYhbM)
+To use the application, download the executable here: [NoteNudge Executable](https://drive.google.com/uc?export=download&id=1hmO-U10X9lPUMdoci9weH3lpn_WsYhbM) (Windows only)
 
 
